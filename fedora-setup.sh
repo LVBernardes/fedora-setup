@@ -1,13 +1,35 @@
 #!/bin/bash
 
-if [ $(id -u) != 0 ]; then
-   echo "This script should be run with admin privileges (sudo)!"
+#####
+# Check which user is running the script
+#####
+
+# Check if script was executed as ROOT
+if ((${EUID:-0} || "$(id -u)")); then
+   echo "ERROR: This script must be run as root." 
    exit 1
 fi
 
+# Check if a user is passed as parameter
+if [ $# -eq 0 ]; then
+    echo "ERROR: You need to inform a user as parameter to be used in GNOME and Applications configuration."
+    echo "Example: sudo -E bash fedora-setup.sh user1"
+    exit 1
+fi
+
+# Check if the user session environment variables were preserved
+if [ -v $DBUS_SESSION_BUS_ADDRESS ]; then
+	echo "ERROR: You need to run 'sudo -E' to preserve session environment variables."
+	exit 1
+fi
 
 # Storing USER for later configurations
 USER=$1
+
+
+#####
+# First configs to kernel and DNF
+#####
 
 # Configuring DNF to be faster
 tee -a /etc/dnf/dnf.conf > /dev/null <<EOF
@@ -33,9 +55,9 @@ vm.swappiness=1
 EOF
 
 
-###
-# Add aditional repositories
-###
+#####
+# Add aditional repositories to system list
+#####
 
 # Nvidia drivers from Negativo17
 dnf config-manager --add-repo=https://negativo17.org/repos/fedora-nvidia.repo
@@ -50,21 +72,24 @@ dnf install \
 https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
 
 
-###
+#####
 # Force update the whole system to the latest and greatest
-###
+#####
 
 dnf upgrade --best --allowerasing --refresh -y
 
 # And also remove any packages without a source backing them
 dnf distro-sync -y
 
-###
+#####
 # Install base packages and terminal applications from repositories
-###
+#####
 
 dnf install \
 -y `# Do not ask for confirmation` \
+kernel-modules `# kernel modules to match the core kernel` \
+fuse `# File System in Userspace (FUSE) v2 utilities` \
+squashfuse `# FUSE filesystem to mount squashfs archives` \
 gcc `# Various compilers (C, C++, Objective-C, ...)` \
 gcc-c++ `# C++ support for GCC` \
 dnf-plugins-core `# Core Plugins for DNF` \
@@ -81,7 +106,6 @@ ffmpeg `# Adds Codec Support to Firefox, and in general` \
 fuse-exfat `# Allows mounting exfat` \
 fuse-sshfs `# Allows mounting servers via sshfs` \
 GREYCstoration-gimp \
-gtkhash-nautilus `# To get a file hash via GUI` \
 gvfs-fuse `# gnome<>fuse` \
 gvfs-mtp `# gnome<>android` \
 gvfs-nfs `# gnome<>ntfs` \
@@ -108,14 +132,15 @@ solaar `# Device manager for a wide range of Logitech devices` \
 java-latest-openjdk-devel `# OpenJDK latest version Development Environment` \
 texlive-scheme-full `# Texlive complete package`
 
-###
+#####
 # Install applications and plugins from repositories
-###
+#####
 
 dnf install \
 -y `# Do not ask for confirmation` \
 vlc `# The cross-platform open-source multimedia framework, player and server` \
 code `# Visual Studio Code application`
+google-chrome-stable `# Google Chrome` \
 flameshot `# Powerful and simple to use screenshot software` \
 blender `# 3D Software Powerhouse` \
 calibre `# Ebook management` \
@@ -153,9 +178,9 @@ thunderbird `# Mozilla Thunderbird mail/newsgroup client` \
 texstudio `# A feature-rich editor for LaTeX documents`
 
 
-###
+#####
 # Install extensions, addons, fonts and themes from repositories
-###
+#####
 
 dnf install \
 -y `# Do not ask for confirmation` \
@@ -167,37 +192,55 @@ nautilus-image-converter `# Image converter option in context menu` \
 nautilus-search-tool `# Searh option in context menu` \
 nautilus-open-terminal `# Open folder in terminal option in context menu` \
 nautilus-gksu `# Open file as administrator option in context menu` \
-gnome-shell-extension-apps-menu `# Application menu for GNOME Shell` \
-gnome-shell-extension-user-theme `# Enables theming the gnome shell` \
+gtkhash-nautilus `# To get a file hash via GUI` \
+gnome-extensions-app `# Manage GNOME Shell extensions` \
 gnome-tweaks `# Your central place to make gnome like you want` \
+gnome-shell-extension-user-theme `# Enables theming the gnome shell` \
 gnome-shell-extension-appindicator `# AppIndicator/KStatusNotifierItem support for GNOME Shell` \
-gnome-shell-extension-remove-volume-icon `# A gnome-shell extension for removing the volume icon` \
 gnome-shell-extension-sound-output-device-chooser `# GNOME Shell extension for selecting sound devices` \
 gnome-shell-extension-common `# Files common to GNOME Shell Extensions` \
 gnome-shell-extension-mediacontrols `# Show controls for the current playing media in the panel` \
 gnome-shell-extension-caffeine `# Disable the screen saver and auto suspend in gnome shell` \
 papirus-icon-theme `# A quite nice icon theme` \
+arc-theme `# Flat theme with transparent elements`
 
-###
+
+#####
+# Configure and use Flathub
+#####
+
 # Add Flathub repo to Flatpak remote list
-###
-flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+sudo -E -u $USER flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
-###
-# Install application from Flathub
-###
+# Install applications from Flathub
+sudo -E -u $USER bash <<EOF
+flatpak install \
+-y `# Do not ask for confirmation` \
+flathub `# from flathub repo`
+org.gnome.FontManager `# Powerful markdown editor for the GNOME desktop.` \
+com.github.fabiocolacio.marker `# A simple font management application for Gtk+ Desktop Environments`
+EOF
 
-flatpak install flathub org.gnome.FontManager `# Powerful markdown editor for the GNOME desktop.`
-flatpak install flathub com.github.fabiocolacio.marker `# A simple font management application for Gtk+ Desktop Environments`
+
+#####
+# Configure and use Snap
+#####
+
+# Install snapd
+dnf install snapd
+
+# Create symlink to ensure proper functioning
+ln -s /var/lib/snapd/snap /snap
+
+# Install Snap Store
+snap install snap-store
 
 
-
-
-###
+#####
 # Install and configure nvidia and CUDA drivers
-###
+#####
 
-sudo dnf install \
+dnf install \
 -y `# Do not ask for confirmation` \
 nvidia-driver `# Basic NVidia drivers for amd64` \
 nvidia-driver-libs.i686 `#B asic NVidia drivers for x86` \
@@ -207,27 +250,16 @@ cuda-devel `# CUDA development packages` \
 cuda-cudnn `# CUDA development packages for deep neural networks`
 
 
-###
-# Install TEX Live complete package
-###
-
-sudo dnf install \
--y `# Do not ask for confirmation` \
-texlive-scheme-full
-
-
-###
+#####
 # Enable some of the goodies, but not all
-# Its the users responsibility to choose and enable zsh, with oh-my-zsh for example
 # or set a more specific tuned profile
-###
+#####
 
-
-## Tuned activation
-sudo systemctl enable --now tuned
+### Tuned activation
+systemctl enable --now tuned
 
 # Balanced:
-sudo tuned-adm profile balanced
+tuned-adm profile balanced
 
 # Performance:
 #sudo tuned-adm profile desktop
@@ -242,18 +274,16 @@ sudo tuned-adm profile balanced
 #sudo tuned-adm profile powersave
 
 # Virtual Machines
-sudo systemctl enable --now libvirtd
+systemctl enable --now libvirtd
 
-## Cockpit activation
+### Cockpit activation
 # Management of local/remote system(s) - available via http://localhost:9090
-sudo systemctl enable --now cockpit.socket
+systemctl enable --now cockpit.socket
 
 
-
-
-###
+#####
 # Installing Zotero
-###
+#####
 
 # Download tarball
 wget -O "zotero.tar.bz2" "https://www.zotero.org/download/client/dl?channel=release&platform=linux-x86_64" -o "/dev/null"
@@ -280,30 +310,32 @@ ln -s /opt/zotero/zotero.desktop /home/$USER/.local/share/applications/zotero.de
 rm -f zotero.tar.bz2
 
 
-
-flatpak run org.gnome.FontManager
-flatpak run com.github.fabiocolacio.marker
-
-
-
-###
+#####
 # Theming and GNOME Options
-###
+#####
 
 # This indexer is nice, but can be detrimental for laptop users battery life
+sudo -E -u $USER bash <<EOF
 gsettings set org.freedesktop.Tracker.Miner.Files index-on-battery false
 gsettings set org.freedesktop.Tracker.Miner.Files index-on-battery-first-time false
 gsettings set org.freedesktop.Tracker.Miner.Files throttle 15
+EOF
 
 # Nautilus (File Manager) Usability
+sudo -E -u $USER bash <<EOF
 gsettings set org.gnome.nautilus.icon-view default-zoom-level 'standard'
 gsettings set org.gnome.nautilus.preferences executable-text-activation 'ask'
 gsettings set org.gtk.Settings.FileChooser sort-directories-first true
 gsettings set org.gnome.nautilus.list-view use-tree-view true
+EOF
 
 #Usability Improvements
+sudo -E -u $USER bash <<EOF
 gsettings set org.gnome.desktop.peripherals.mouse accel-profile 'adaptive'
 gsettings set org.gnome.desktop.sound allow-volume-above-100-percent true
 gsettings set org.gnome.desktop.calendar show-weekdate true
 gsettings set org.gnome.desktop.wm.preferences resize-with-right-button true
 gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close'
+gsettings set org.gnome.shell.overrides workspaces-only-on-primary false
+EOF
+
