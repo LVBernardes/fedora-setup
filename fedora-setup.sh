@@ -202,7 +202,7 @@ echo ""
 dnf install \
 -y `# Do not ask for confirmation` \
 vlc `# The cross-platform open-source multimedia framework, player and server` \
-code `# Visual Studio Code application`
+code `# Visual Studio Code application` \
 google-chrome-stable `# Google Chrome` \
 flameshot `# Powerful and simple to use screenshot software` \
 blender `# 3D Software Powerhouse` \
