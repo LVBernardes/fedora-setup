@@ -1,7 +1,6 @@
 #!/bin/bash
 
-
-
+# ----------------------------------------------------------------------------
 #####
 # Check which user is running the script
 #####
@@ -25,25 +24,77 @@ if [ -v $DBUS_SESSION_BUS_ADDRESS ]; then
 	exit 1
 fi
 
-# Storing USER for later configurations
+# Storing USER and HOME variables for later configurations
 USER=$1
+HOME="/home/${USER}"
 
+# ----------------------------------------------------------------------------
 #####
 # Log setup
 #####
-DATETIME=`date +"%Y%m%d_%H%M%S"`
-LOGDIR="/home/${USER}/"
-OUTPUT="${LOGDIR}/fedora_setup_output_${DATETIME}"
-OUTPUT_TIMING="${LOGDIR}/fedora_setup_output_timeline${DATETIME}"
-> $OUTPUT
+# DATETIME=`date +"%Y%m%d_%H%M%S"`
+# LOGDIR="/home/${USER}/"
+# OUTPUT="${LOGDIR}/fedora_setup_output_${DATETIME}"
+# OUTPUT_TIMING="${LOGDIR}/fedora_setup_output_timeline${DATETIME}"
 
-script -T $OUTPUT_TIMING -q $OUTPUT
+export LOGDIR=$HOME
+export DATE=`date +"%Y%m%d"`
+export DATETIME=`date +"%Y%m%d_%H%M%S"`
+ 
+ScriptName=`basename $0`
+Job=`basename $0 .sh`"_log"
+JobClass=`basename $0 .sh`
+ 
+function Log_Open() {
+        if [ $NO_JOB_LOGGING ] ; then
+                einfo "Not logging to a logfile because -Z option specified." #(*)
+        else
+                [[ -d $LOGDIR/$JobClass ]] || mkdir -p $LOGDIR/$JobClass
+                Pipe=${LOGDIR}/$JobClass/${Job}_${DATETIME}.pipe
+                mkfifo -m 700 $Pipe
+                LOGFILE=${LOGDIR}/$JobClass/${Job}_${DATETIME}.log
+                exec 3>&1
+                tee ${LOGFILE} <$Pipe >&3 &
+                teepid=$!
+                exec 1>$Pipe
+                PIPE_OPENED=1
+                enotify Logging to $LOGFILE  # (*)
+                [ $SUDO_USER ] && enotify "Sudo user: $SUDO_USER" #(*)
+        fi
+}
+ 
+function Log_Close() {
+        if [ ${PIPE_OPENED} ] ; then
+                exec 1<&3
+                sleep 0.2
+                ps --pid $teepid >/dev/null
+                if [ $? -eq 0 ] ; then
+                        # a wait $teepid whould be better but some
+                        # commands leave file descriptors open
+                        sleep 1
+                        kill  $teepid
+                fi
+                rm $Pipe
+                unset PIPE_OPENED
+        fi
+}
+ 
+OPTIND=1
+while getopts ":Z" opt ; do
+        case $opt in
+                Z)
+                        NO_JOB_LOGGING="true"
+                        ;;
+        esac
+done
+
+Log_Open
 
 echo ""
 echo "FEDORA-SETUP: Initializing setup process."
 echo ""
 
-
+# ----------------------------------------------------------------------------
 #####
 # First configs to kernel and DNF
 #####
@@ -80,7 +131,7 @@ echo ""
 echo "FEDORA-SETUP: Configuring kernel and SO finished."
 echo ""
 
-
+# ----------------------------------------------------------------------------
 #####
 # Add aditional repositories to system list
 #####
@@ -94,17 +145,36 @@ dnf config-manager --add-repo=https://negativo17.org/repos/fedora-nvidia.repo
 
 # Visual Studio Code from Microsoft
 rpm --import https://packages.microsoft.com/keys/microsoft.asc
-sh -c 'echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo'
+tee /etc/yum.repos.d/vscode.repo > /dev/null <<EOF
+[code]
+name=Visual Studio Code
+baseurl=https://packages.microsoft.com/yumrepos/vscode
+enabled=1
+gpgkey=https://packages.microsoft.com/keys/microsoft.asc
+gpgcheck=1
+EOF
+
 
 # RPM Fusion Free
 dnf install \
 -y `# Do not ask for confirmation` \
 https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
 
+# Plex Media Server
+sudo tee /etc/yum.repos.d/plex.repo > /dev/null <<EOF
+[PlexRepo]
+name=PlexRepo
+baseurl=https://downloads.plex.tv/repo/rpm/x86_64/
+enabled=1
+gpgkey=https://downloads.plex.tv/plex-keys/PlexSign.key
+gpgcheck=1
+EOF
+
 echo ""
 echo "FEDORA-SETUP: Instaling and configuring additional repositories finished."
 echo ""
 
+# ----------------------------------------------------------------------------
 #####
 # Force update the whole system to the latest and greatest
 #####
@@ -122,7 +192,7 @@ echo ""
 echo "FEDORA-SETUP: Updating and upgrading existent packages and cache finished."
 echo ""
 
-
+# ----------------------------------------------------------------------------
 #####
 # Install base packages and terminal applications from repositories
 #####
@@ -190,7 +260,7 @@ echo ""
 echo "FEDORA-SETUP: Installing base packages and terminal applications finished."
 echo ""
 
-
+# ----------------------------------------------------------------------------
 #####
 # Install applications and plugins from repositories
 #####
@@ -244,13 +314,14 @@ cockpit-packagekit `# See and apply updates to your system. Supports RPM and DEB
 cockpit-podman `# Download, use, and manage containers in your browser. (Podman replaces Docker.)` \
 ulauncher `# Linux Application Launcher` \
 thunderbird `# Mozilla Thunderbird mail/newsgroup client` \
-texstudio `# A feature-rich editor for LaTeX documents`
+texstudio `# A feature-rich editor for LaTeX documents` \
+plexmediaserver `# Plex organizes all of your personal media so you can easily access and enjoy it.`
 
 echo ""
 echo "FEDORA-SETUP: Installing applications finished."
 echo ""
 
-
+# ----------------------------------------------------------------------------
 #####
 # Install extensions, addons, fonts and themes from repositories
 #####
@@ -274,11 +345,6 @@ gtkhash-nautilus `# To get a file hash via GUI` \
 gnome-extensions-app `# Manage GNOME Shell extensions` \
 gnome-tweaks `# Your central place to make gnome like you want` \
 gnome-shell-extension-user-theme `# Enables theming the gnome shell` \
-# gnome-shell-extension-appindicator `# AppIndicator/KStatusNotifierItem support for GNOME Shell` \
-# gnome-shell-extension-sound-output-device-chooser `# GNOME Shell extension for selecting sound devices` \
-# gnome-shell-extension-common `# Files common to GNOME Shell Extensions` \
-# gnome-shell-extension-mediacontrols `# Show controls for the current playing media in the panel` \
-# gnome-shell-extension-caffeine `# Disable the screen saver and auto suspend in gnome shell` \
 papirus-icon-theme `# Free and open source SVG icon theme based on Paper Icon Set` \
 arc-theme `# Flat theme with transparent elements`
 
@@ -286,7 +352,7 @@ echo ""
 echo "FEDORA-SETUP: Installing extension, fonts and themes finished."
 echo ""
 
-
+# ----------------------------------------------------------------------------
 #####
 # Configure and use Flathub
 #####
@@ -302,16 +368,17 @@ flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flat
 sudo -E -u $USER bash <<EOF
 flatpak install \
 -y `# Do not ask for confirmation` \
-flathub `# from flathub repo`
+flathub `# from flathub repo` \
 org.gnome.FontManager `# Powerful markdown editor for the GNOME desktop.` \
-com.github.fabiocolacio.marker `# A simple font management application for Gtk+ Desktop Environments`
+com.github.fabiocolacio.marker `# A simple font management application for Gtk+ Desktop Environments` \
+flathub com.jgraph.drawio.desktop
 EOF
 
 echo ""
 echo "FEDORA-SETUP: Installing and configuring Flathub and applications finished."
 echo ""
 
-
+# ----------------------------------------------------------------------------
 #####
 # Configure and use Snap
 #####
@@ -327,16 +394,16 @@ dnf install -y snapd
 ln -s /var/lib/snapd/snap /snap
 
 # Install Snap Store
-sudo -E -u $USER snap install snap-store
+snap install snap-store
 
 # Install Spotify
-sudo -E -u $USER snap install spotify
+$USER snap install spotify
 
 echo ""
 echo "FEDORA-SETUP: Installing and configuring Snap finished."
 echo ""
 
-
+# ----------------------------------------------------------------------------
 #####
 # Install and configure nvidia and CUDA drivers
 #####
@@ -358,7 +425,7 @@ echo ""
 echo "FEDORA-SETUP: Installing NVidia drivers finished."
 echo ""
 
-
+# ----------------------------------------------------------------------------
 #####
 # Enable some of the goodies, but not all
 # or set a more specific tuned profile
@@ -400,7 +467,7 @@ echo ""
 echo "FEDORA-SETUP: Enabling applications daemons finished."
 echo ""
 
-
+# ----------------------------------------------------------------------------
 #####
 # Installing Zotero
 #####
@@ -428,7 +495,7 @@ chown -R $USER:$USER /opt/zotero/
 bash /opt/zotero/set_launcher_icon
 
 # Create symlink to desktop launcher
-ln -s /opt/zotero/zotero.desktop /home/$USER/.local/share/applications/zotero.desktop
+ln -s /opt/zotero/zotero.desktop $HOME/.local/share/applications/zotero.desktop
 
 # Clean root user folder from the downloaded tarvball
 rm -f zotero.tar.bz2
@@ -437,7 +504,61 @@ echo ""
 echo "FEDORA-SETUP: Zotero successfully installed."
 echo ""
 
+# ----------------------------------------------------------------------------
+#####
+# AppImage Integrator
+#####
 
+echo ""
+echo "FEDORA-SETUP: Installing and configuring AppImageLauncher integrator."
+echo ""
+
+# Download and install AppImageLauncher
+sudo -E -u $USER wget -q -O "$HOME/appimagelauncher.rpm" -o "/dev/null" \
+"https://github.com$(curl -s $(curl -Ls -o /dev/null -w %{url_effective} https://github.com/TheAssassin/AppImageLauncher/releases/latest) | grep -Eoi '<a [^>]+>' | grep -Eo 'href="[^\"]+"' | grep -Eo '\/TheAssassin\/AppImageLauncher\/releases\/download\/\S*\/appimagelauncher\S*\.x86_64.rpm')"
+
+dnf install -y "$HOME/appimagelauncher.rpm"
+
+# Configure AppImageLauncher
+sudo -E -u $USER tee /home/$USER/.config/appimagelauncher.cfg > /dev/null <<EOF
+[AppImageLauncher]
+ask_to_move = true
+destination = /home/$USER/.bin/appimagefiles
+enable_daemon = true
+
+
+[appimagelauncherd]
+additional_directories_to_watch = /home/$USER:/home/$USER/Downloads
+# monitor_mounted_filesystems = false
+EOF
+
+echo ""
+echo "FEDORA-SETUP: Installing and configuring AppImageLauncher integrator finished."
+echo ""
+
+# ----------------------------------------------------------------------------
+#####
+# AppImage Applications
+#####
+
+echo ""
+echo "FEDORA-SETUP: Installing and configuring AppImage applications."
+echo ""
+
+# Download and install Obsidian
+sudo -E -u $USER wget -q -O "$HOME/.bin/appimagefiles/obisidian.AppImage" -o "/dev/null" \
+"$(curl -Ls https://obsidian.md/download | grep -Eo 'href="[^\"]+"' | grep -Eo '((http|https):\/\/github\.com\/obsidianmd\/obsidian-releases\/releases\/download\/\S*\/Obsidian-[0-9]*\.[0-9]*\.[0-9]*\.AppImage)')"
+
+# Download and install JetBrains ToolBox
+wget -q -O "jetbrains-toolbox.tar.bz2" -o "/dev/null" "https://download.jetbrains.com/toolbox/jetbrains-toolbox-1.22.10685.tar.gz"
+tar -xf jetbrains-toolbox.tar.bz2 --strip-components=1 -C $HOME/.bin/appimagefiles/
+chown $USER:$USER $HOME/.bin/appimagefiles/jetbrains-toolbox
+
+echo ""
+echo "FEDORA-SETUP: Installing and configuring AppImage applications finished."
+echo ""
+
+# ----------------------------------------------------------------------------
 #####
 # Theming and GNOME Options
 #####
@@ -448,20 +569,25 @@ echo ""
 
 # This indexer is nice, but can be detrimental for laptop users battery life
 sudo -E -u $USER bash <<EOF
-gsettings set org.freedesktop.tracker.miner.files index-on-battery false
-gsettings set org.freedesktop.tracker.miner.files index-on-battery-first-time false
-gsettings set org.freedesktop.tracker.miner.files throttle 15
+gsettings set org.freedesktop.Tracker3.Miner.Files index-on-battery false
+gsettings set org.freedesktop.Tracker3.Miner.Files index-on-battery-first-time false
+gsettings set org.freedesktop.Tracker3.Miner.Files throttle 15
 EOF
 
 # Nautilus (File Manager) Usability
 sudo -E -u $USER bash <<EOF
 gsettings set org.gnome.nautilus.icon-view default-zoom-level 'standard'
 gsettings set org.gnome.nautilus.list-view use-tree-view true
-gsettings set org.gtk.settings.file-chooser sort-directories-first true
+gsettings set org.gnome.nautilus.list-view default-column-order "['name','size','type','mime_type','owner','group','permissions','where','date_modified','date_created','date_modified_with_time','date_accessed','recency','starred']"
+gsettings set org.gnome.nautilus.list-view default-visible-columns "['name','size','type','mime_type','date_modified','date_created','starred']"
+gsettings set org.gtk.Settings.FileChooser sort-directories-first true
+gsettings set org.gtk.Settings.FileChooser date-format 'with-time'
 EOF
 
 # Usability Improvements
 sudo -E -u $USER bash <<EOF
+gsettings set org.gnome.desktop.interface clock-show-weekday true
+gsettings set org.gnome.desktop.interface clock-show-seconds true
 gsettings set org.gnome.desktop.peripherals.mouse accel-profile 'adaptive'
 gsettings set org.gnome.desktop.sound allow-volume-above-100-percent true
 gsettings set org.gnome.desktop.calendar show-weekdate true
@@ -470,24 +596,30 @@ gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,m
 gsettings set org.gnome.shell.overrides workspaces-only-on-primary false
 EOF
 
+# Theme configuration
+sudo -E -u $USER bash <<EOF
+gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
+gsettings set org.gnome.desktop.interface icon-theme 'breeze-dark'
+EOF
+
 # # Shell Extensions Activation
 # sudo -E -u $USER bash <<EOF
 # gsettings set org.gnome.shell enabled-extensions "['background-logo@fedorahosted.org','sound-output-device-chooser@kgshank.net','mediacontrols@cliffniff.github.com','caffeine@patapon.info','appindicatorsupport@rgcjonas.gmail.com']"
 # EOF
 
-
+# ----------------------------------------------------------------------------
 #####
 # Ending setup process
 #####
 
-# Finish log recording
 echo ""
 echo "FEDORA-SETUP: Ending setup."
 echo ""
-exit
 
 # Restart
 echo ""
 echo "FEDORA-SETUP: Restarting..."
 echo ""
-restart
+
+Log_Close
+reboot
