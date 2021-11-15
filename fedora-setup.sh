@@ -39,11 +39,18 @@ OUTPUT_TIMING="${LOGDIR}/fedora_setup_output_timeline${DATETIME}"
 
 script -T $OUTPUT_TIMING -q $OUTPUT
 
+echo ""
+echo "FEDORA-SETUP: Initializing setup process."
+echo ""
 
 
 #####
 # First configs to kernel and DNF
 #####
+
+echo ""
+echo "FEDORA-SETUP: Configuring kernel and SO."
+echo ""
 
 # Configuring DNF to be faster
 tee -a /etc/dnf/dnf.conf > /dev/null <<EOF
@@ -69,10 +76,18 @@ tee -a /etc/sysctl.d/99-swappiness.conf > /dev/null  <<EOF
 vm.swappiness=1
 EOF
 
+echo ""
+echo "FEDORA-SETUP: Configuring kernel and SO finished."
+echo ""
+
 
 #####
 # Add aditional repositories to system list
 #####
+
+echo ""
+echo "FEDORA-SETUP: Instaling and configuring additional repositories."
+echo ""
 
 # Nvidia drivers from Negativo17
 dnf config-manager --add-repo=https://negativo17.org/repos/fedora-nvidia.repo
@@ -86,19 +101,35 @@ dnf install \
 -y `# Do not ask for confirmation` \
 https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
 
+echo ""
+echo "FEDORA-SETUP: Instaling and configuring additional repositories finished."
+echo ""
 
 #####
 # Force update the whole system to the latest and greatest
 #####
+
+echo ""
+echo "FEDORA-SETUP: Updating and upgrading existent packages and cache."
+echo ""
 
 dnf upgrade --best --allowerasing --refresh -y
 
 # And also remove any packages without a source backing them
 dnf distro-sync -y
 
+echo ""
+echo "FEDORA-SETUP: Updating and upgrading existent packages and cache finished."
+echo ""
+
+
 #####
 # Install base packages and terminal applications from repositories
 #####
+
+echo ""
+echo "FEDORA-SETUP: Installing base packages and terminal applications."
+echo ""
 
 dnf install \
 -y `# Do not ask for confirmation` \
@@ -155,9 +186,18 @@ solaar `# Device manager for a wide range of Logitech devices` \
 java-latest-openjdk-devel `# OpenJDK latest version Development Environment` \
 texlive-scheme-full `# Texlive complete package`
 
+echo ""
+echo "FEDORA-SETUP: Installing base packages and terminal applications finished."
+echo ""
+
+
 #####
 # Install applications and plugins from repositories
 #####
+
+echo ""
+echo "FEDORA-SETUP: Installing applications."
+echo ""
 
 dnf install \
 -y `# Do not ask for confirmation` \
@@ -206,10 +246,18 @@ ulauncher `# Linux Application Launcher` \
 thunderbird `# Mozilla Thunderbird mail/newsgroup client` \
 texstudio `# A feature-rich editor for LaTeX documents`
 
+echo ""
+echo "FEDORA-SETUP: Installing applications finished."
+echo ""
+
 
 #####
 # Install extensions, addons, fonts and themes from repositories
 #####
+
+echo ""
+echo "FEDORA-SETUP: Installing extension, fonts and themes."
+echo ""
 
 dnf install \
 -y `# Do not ask for confirmation` \
@@ -226,18 +274,26 @@ gtkhash-nautilus `# To get a file hash via GUI` \
 gnome-extensions-app `# Manage GNOME Shell extensions` \
 gnome-tweaks `# Your central place to make gnome like you want` \
 gnome-shell-extension-user-theme `# Enables theming the gnome shell` \
-gnome-shell-extension-appindicator `# AppIndicator/KStatusNotifierItem support for GNOME Shell` \
-gnome-shell-extension-sound-output-device-chooser `# GNOME Shell extension for selecting sound devices` \
-gnome-shell-extension-common `# Files common to GNOME Shell Extensions` \
-gnome-shell-extension-mediacontrols `# Show controls for the current playing media in the panel` \
-gnome-shell-extension-caffeine `# Disable the screen saver and auto suspend in gnome shell` \
+# gnome-shell-extension-appindicator `# AppIndicator/KStatusNotifierItem support for GNOME Shell` \
+# gnome-shell-extension-sound-output-device-chooser `# GNOME Shell extension for selecting sound devices` \
+# gnome-shell-extension-common `# Files common to GNOME Shell Extensions` \
+# gnome-shell-extension-mediacontrols `# Show controls for the current playing media in the panel` \
+# gnome-shell-extension-caffeine `# Disable the screen saver and auto suspend in gnome shell` \
 papirus-icon-theme `# Free and open source SVG icon theme based on Paper Icon Set` \
 arc-theme `# Flat theme with transparent elements`
+
+echo ""
+echo "FEDORA-SETUP: Installing extension, fonts and themes finished."
+echo ""
 
 
 #####
 # Configure and use Flathub
 #####
+
+echo ""
+echo "FEDORA-SETUP: Installing and configuring Flathub and applications."
+echo ""
 
 # Add Flathub repo to Flatpak remote list
 flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
@@ -251,10 +307,18 @@ org.gnome.FontManager `# Powerful markdown editor for the GNOME desktop.` \
 com.github.fabiocolacio.marker `# A simple font management application for Gtk+ Desktop Environments`
 EOF
 
+echo ""
+echo "FEDORA-SETUP: Installing and configuring Flathub and applications finished."
+echo ""
+
 
 #####
 # Configure and use Snap
 #####
+
+echo ""
+echo "FEDORA-SETUP: Installing and configuring Snap."
+echo ""
 
 # Install snapd
 dnf install -y snapd
@@ -268,10 +332,18 @@ sudo -E -u $USER snap install snap-store
 # Install Spotify
 sudo -E -u $USER snap install spotify
 
+echo ""
+echo "FEDORA-SETUP: Installing and configuring Snap finished."
+echo ""
+
 
 #####
 # Install and configure nvidia and CUDA drivers
 #####
+
+echo ""
+echo "FEDORA-SETUP: Installing NVidia drivers."
+echo ""
 
 dnf install \
 -y `# Do not ask for confirmation` \
@@ -282,11 +354,19 @@ nvidia-settings `# NVidia control panel` \
 cuda-devel `# CUDA development packages` \
 cuda-cudnn `# CUDA development packages for deep neural networks`
 
+echo ""
+echo "FEDORA-SETUP: Installing NVidia drivers finished."
+echo ""
+
 
 #####
 # Enable some of the goodies, but not all
 # or set a more specific tuned profile
 #####
+
+echo ""
+echo "FEDORA-SETUP: Enabling applications daemons."
+echo ""
 
 ### Tuned activation
 systemctl enable --now tuned
@@ -316,9 +396,18 @@ systemctl enable --now cockpit.socket
 # Opening cockpit service to firewall whitelist
 firewall-cmd --add-service=cockpit --permanent
 
+echo ""
+echo "FEDORA-SETUP: Enabling applications daemons finished."
+echo ""
+
+
 #####
 # Installing Zotero
 #####
+
+echo ""
+echo "FEDORA-SETUP: Installing Zotero."
+echo ""
 
 # Download tarball
 wget -O "zotero.tar.bz2" "https://www.zotero.org/download/client/dl?channel=release&platform=linux-x86_64" -o "/dev/null"
@@ -344,10 +433,18 @@ ln -s /opt/zotero/zotero.desktop /home/$USER/.local/share/applications/zotero.de
 # Clean root user folder from the downloaded tarvball
 rm -f zotero.tar.bz2
 
+echo ""
+echo "FEDORA-SETUP: Zotero successfully installed."
+echo ""
+
 
 #####
 # Theming and GNOME Options
 #####
+
+echo ""
+echo "FEDORA-SETUP: Configuring dconf settings."
+echo ""
 
 # This indexer is nice, but can be detrimental for laptop users battery life
 sudo -E -u $USER bash <<EOF
@@ -373,8 +470,24 @@ gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,m
 gsettings set org.gnome.shell.overrides workspaces-only-on-primary false
 EOF
 
-# Shell Extensions Activation
-sudo -E -u $USER bash <<EOF
-gsettings set org.gnome.shell enabled-extensions "['background-logo@fedorahosted.org','sound-output-device-chooser@kgshank.net','mediacontrols@cliffniff.github.com','caffeine@patapon.info','appindicatorsupport@rgcjonas.gmail.com']"
-EOF
+# # Shell Extensions Activation
+# sudo -E -u $USER bash <<EOF
+# gsettings set org.gnome.shell enabled-extensions "['background-logo@fedorahosted.org','sound-output-device-chooser@kgshank.net','mediacontrols@cliffniff.github.com','caffeine@patapon.info','appindicatorsupport@rgcjonas.gmail.com']"
+# EOF
 
+
+#####
+# Ending setup process
+#####
+
+# Finish log recording
+echo ""
+echo "FEDORA-SETUP: Ending setup."
+echo ""
+exit
+
+# Restart
+echo ""
+echo "FEDORA-SETUP: Restarting..."
+echo ""
+restart
