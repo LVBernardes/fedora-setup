@@ -161,7 +161,7 @@ dnf install \
 https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
 
 # Plex Media Server
-sudo tee /etc/yum.repos.d/plex.repo > /dev/null <<EOF
+tee /etc/yum.repos.d/plex.repo > /dev/null <<EOF
 [PlexRepo]
 name=PlexRepo
 baseurl=https://downloads.plex.tv/repo/rpm/x86_64/
@@ -397,7 +397,7 @@ ln -s /var/lib/snapd/snap /snap
 snap install snap-store
 
 # Install Spotify
-$USER snap install spotify
+snap install spotify
 
 echo ""
 echo "FEDORA-SETUP: Installing and configuring Snap finished."
