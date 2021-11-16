@@ -26,7 +26,7 @@ fi
 
 # Storing USER and HOME variables for later configurations
 user_selected=$1
-home_selected="/home/${USER}"
+home_selected="/home/${user_selected}"
 
 # ----------------------------------------------------------------------------
 #####
@@ -565,7 +565,7 @@ sudo -E -u $user_selected wget -q -O "$home_selected/appimagelauncher.rpm" -o "/
 dnf install -y "$home_selected/appimagelauncher.rpm"
 
 # Configure AppImageLauncher
-sudo -E -u $user_selected tee /home/$user_selected/.config/appimagelauncher.cfg > /dev/null <<EOF
+sudo -E -u $user_selected tee $home_selected/.config/appimagelauncher.cfg > /dev/null <<EOF
 [AppImageLauncher]
 ask_to_move = true
 destination = $home_selected/.bin/appimagefiles
@@ -592,7 +592,7 @@ echo ""
 
 # Create folder to store AppImage files
 mkdir $home_selected/.bin $home_selected/.bin/appimagefiles
-chown -R $user_selected:$user_selected .bin/ 
+chown -R $user_selected:$user_selected $home_selected/.bin
 
 # Download and install Obsidian
 wget -q -O "$home_selected/.bin/appimagefiles/obisidian.AppImage" -o "/dev/null" \
