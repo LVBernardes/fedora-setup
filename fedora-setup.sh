@@ -25,8 +25,8 @@ if [ -v $DBUS_SESSION_BUS_ADDRESS ]; then
 fi
 
 # Storing USER and HOME variables for later configurations
-USER=$1
-HOME="/home/${USER}"
+user_selected=$1
+home_selected="/home/${USER}"
 
 # ----------------------------------------------------------------------------
 #####
@@ -37,9 +37,11 @@ HOME="/home/${USER}"
 # OUTPUT="${LOGDIR}/fedora_setup_output_${DATETIME}"
 # OUTPUT_TIMING="${LOGDIR}/fedora_setup_output_timeline${DATETIME}"
 
-export LOGDIR=$HOME
+export LOGDIR=$home_selected
 export DATE=`date +"%Y%m%d"`
 export DATETIME=`date +"%Y%m%d_%H%M%S"`
+
+verbosity=2
 
 ### verbosity levels
 silent_lvl=0
@@ -160,6 +162,23 @@ echo ""
 
 # ----------------------------------------------------------------------------
 #####
+# Disable unnecessary repositories
+#####
+
+echo ""
+echo "FEDORA-SETUP: Disabling unnecessary repositories."
+echo ""
+
+dnf config-manager --set-disabled phracek-PyCharm
+dnf config-manager --set-disalbed rpmfusion-nonfree-nvidia-driver
+dnf config-manager --set-disabled rpmfusion-nonfree-steam
+
+echo ""
+echo "FEDORA-SETUP: Disabling unnecessary repositories finished."
+echo ""
+
+# ----------------------------------------------------------------------------
+#####
 # Add aditional repositories to system list
 #####
 
@@ -180,7 +199,6 @@ enabled=1
 gpgkey=https://packages.microsoft.com/keys/microsoft.asc
 gpgcheck=1
 EOF
-
 
 # RPM Fusion Free
 dnf install \
@@ -392,7 +410,7 @@ echo ""
 flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
 # Install applications from Flathub
-sudo -E -u $USER bash <<EOF
+sudo -E -u $user_selected bash <<EOF
 flatpak install \
 -y `# Do not ask for confirmation` \
 flathub `# from flathub repo` \
@@ -466,7 +484,7 @@ echo ""
 systemctl enable --now tuned
 
 # Balanced:
-sudo -E -u $USER tuned-adm profile balanced
+sudo -E -u $user_selected tuned-adm profile balanced
 
 # Performance:
 #sudo tuned-adm profile desktop
@@ -516,13 +534,13 @@ mv Zotero*/ zotero/
 mv zotero/ /opt/
 
 # Change ownership to specified user
-chown -R $USER:$USER /opt/zotero/
+chown -R $user_selected:$user_selected /opt/zotero/
 
 # Run launcher icon locator
 bash /opt/zotero/set_launcher_icon
 
 # Create symlink to desktop launcher
-ln -s /opt/zotero/zotero.desktop $HOME/.local/share/applications/zotero.desktop
+ln -s /opt/zotero/zotero.desktop $home_selected/.local/share/applications/zotero.desktop
 
 # Clean root user folder from the downloaded tarvball
 rm -f zotero.tar.bz2
@@ -541,21 +559,21 @@ echo "FEDORA-SETUP: Installing and configuring AppImageLauncher integrator."
 echo ""
 
 # Download and install AppImageLauncher
-sudo -E -u $USER wget -q -O "$HOME/appimagelauncher.rpm" -o "/dev/null" \
+sudo -E -u $user_selected wget -q -O "$home_selected/appimagelauncher.rpm" -o "/dev/null" \
 "https://github.com$(curl -s $(curl -Ls -o /dev/null -w %{url_effective} https://github.com/TheAssassin/AppImageLauncher/releases/latest) | grep -Eoi '<a [^>]+>' | grep -Eo 'href="[^\"]+"' | grep -Eo '\/TheAssassin\/AppImageLauncher\/releases\/download\/\S*\/appimagelauncher\S*\.x86_64.rpm')"
 
-dnf install -y "$HOME/appimagelauncher.rpm"
+dnf install -y "$home_selected/appimagelauncher.rpm"
 
 # Configure AppImageLauncher
-sudo -E -u $USER tee /home/$USER/.config/appimagelauncher.cfg > /dev/null <<EOF
+sudo -E -u $user_selected tee /home/$user_selected/.config/appimagelauncher.cfg > /dev/null <<EOF
 [AppImageLauncher]
 ask_to_move = true
-destination = /home/$USER/.bin/appimagefiles
+destination = $home_selected/.bin/appimagefiles
 enable_daemon = true
 
 
 [appimagelauncherd]
-additional_directories_to_watch = /home/$USER:/home/$USER/Downloads
+additional_directories_to_watch = $home_selected:$home_selected/Downloads
 # monitor_mounted_filesystems = false
 EOF
 
@@ -573,16 +591,18 @@ echo "FEDORA-SETUP: Installing and configuring AppImage applications."
 echo ""
 
 # Create folder to store AppImage files
-mkdir $HOME/.bin $HOME/.bin/appimagefiles
+mkdir $home_selected/.bin $home_selected/.bin/appimagefiles
+chown -R $user_selected:$user_selected .bin/ 
 
 # Download and install Obsidian
-sudo -E -u $USER wget -q -O "$HOME/.bin/appimagefiles/obisidian.AppImage" -o "/dev/null" \
+wget -q -O "$home_selected/.bin/appimagefiles/obisidian.AppImage" -o "/dev/null" \
 "$(curl -Ls https://obsidian.md/download | grep -Eo 'href="[^\"]+"' | grep -Eo '((http|https):\/\/github\.com\/obsidianmd\/obsidian-releases\/releases\/download\/\S*\/Obsidian-[0-9]*\.[0-9]*\.[0-9]*\.AppImage)')"
+chown -R $user_selected:$user_selected $home_selected/.bin/appimagefiles/obisidian.AppImage
 
 # Download and install JetBrains ToolBox
 wget -q -O "jetbrains-toolbox.tar.bz2" -o "/dev/null" "https://download.jetbrains.com/toolbox/jetbrains-toolbox-1.22.10685.tar.gz"
-tar -xf jetbrains-toolbox.tar.bz2 --strip-components=1 -C $HOME/.bin/appimagefiles/
-chown $USER:$USER $HOME/.bin/appimagefiles/jetbrains-toolbox
+tar -xf jetbrains-toolbox.tar.bz2 --strip-components=1 -C $home_selected/.bin/appimagefiles/
+chown $user_selected:$user_selected $home_selected/.bin/appimagefiles/jetbrains-toolbox
 
 echo ""
 echo "FEDORA-SETUP: Installing and configuring AppImage applications finished."
@@ -598,14 +618,14 @@ echo "FEDORA-SETUP: Configuring dconf settings."
 echo ""
 
 # This indexer is nice, but can be detrimental for laptop users battery life
-sudo -E -u $USER bash <<EOF
+sudo -E -u $user_selected bash <<EOF
 gsettings set org.freedesktop.Tracker3.Miner.Files index-on-battery false
 gsettings set org.freedesktop.Tracker3.Miner.Files index-on-battery-first-time false
 gsettings set org.freedesktop.Tracker3.Miner.Files throttle 15
 EOF
 
 # Nautilus (File Manager) Usability
-sudo -E -u $USER bash <<EOF
+sudo -E -u $user_selected bash <<EOF
 gsettings set org.gnome.nautilus.icon-view default-zoom-level 'standard'
 gsettings set org.gnome.nautilus.list-view use-tree-view true
 gsettings set org.gnome.nautilus.list-view default-column-order "['name','size','type','mime_type','owner','group','permissions','where','date_modified','date_created','date_modified_with_time','date_accessed','recency','starred']"
@@ -615,7 +635,7 @@ gsettings set org.gtk.Settings.FileChooser date-format 'with-time'
 EOF
 
 # Usability Improvements
-sudo -E -u $USER bash <<EOF
+sudo -E -u $user_selected bash <<EOF
 gsettings set org.gnome.desktop.interface clock-show-weekday true
 gsettings set org.gnome.desktop.interface clock-show-seconds true
 gsettings set org.gnome.desktop.peripherals.mouse accel-profile 'adaptive'
@@ -627,13 +647,13 @@ gsettings set org.gnome.shell.overrides workspaces-only-on-primary false
 EOF
 
 # Theme configuration
-sudo -E -u $USER bash <<EOF
+sudo -E -u $user_selected bash <<EOF
 gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
 gsettings set org.gnome.desktop.interface icon-theme 'breeze-dark'
 EOF
 
 # # Shell Extensions Activation
-# sudo -E -u $USER bash <<EOF
+# sudo -E -u $user_selected bash <<EOF
 # gsettings set org.gnome.shell enabled-extensions "['background-logo@fedorahosted.org','sound-output-device-chooser@kgshank.net','mediacontrols@cliffniff.github.com','caffeine@patapon.info','appindicatorsupport@rgcjonas.gmail.com']"
 # EOF
 
@@ -642,14 +662,15 @@ EOF
 # Ending setup process
 #####
 
+chwon -R $user_selected:$user_selected $home_selected
+
 echo ""
 echo "FEDORA-SETUP: Ending setup."
 echo ""
 
 # Restart
 echo ""
-echo "FEDORA-SETUP: Restarting..."
+echo "FEDORA-SETUP: Please, restart."
 echo ""
 
 Log_Close
-reboot
