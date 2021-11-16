@@ -170,7 +170,7 @@ echo "FEDORA-SETUP: Disabling unnecessary repositories."
 echo ""
 
 dnf config-manager --set-disabled phracek-PyCharm
-dnf config-manager --set-disalbed rpmfusion-nonfree-nvidia-driver
+dnf config-manager --set-disabled rpmfusion-nonfree-nvidia-driver
 dnf config-manager --set-disabled rpmfusion-nonfree-steam
 
 echo ""
