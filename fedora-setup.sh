@@ -225,13 +225,19 @@ echo ""
 #####
 
 echo ""
-echo "FEDORA-SETUP: Updating and upgrading existent packages and cache."
+echo "FEDORA-SETUP: Updating cache and drivers and upgrading existent packages."
 echo ""
 
 dnf upgrade --best --allowerasing --refresh -y
 
 # And also remove any packages without a source backing them
 dnf distro-sync -y
+
+# Update firmware e drivers
+fwupdmgr get-devices
+fwupdmgr refresh --force
+fwupdmgr get-updates
+fwupdmgr update
 
 echo ""
 echo "FEDORA-SETUP: Updating and upgrading existent packages and cache finished."
