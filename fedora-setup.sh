@@ -542,17 +542,64 @@ mv zotero/ /opt/
 # Change ownership to specified user
 chown -R $user_selected:$user_selected /opt/zotero/
 
+# Clean root user folder from the downloaded tarball
+rm -f zotero.tar.bz2
+
+# Go to zotero folder to chance icon config
+cd /opt/zotero
+
 # Run launcher icon locator
 bash /opt/zotero/set_launcher_icon
+cd ~
 
 # Create symlink to desktop launcher
 ln -s /opt/zotero/zotero.desktop $home_selected/.local/share/applications/zotero.desktop
 
-# Clean root user folder from the downloaded tarvball
-rm -f zotero.tar.bz2
-
 echo ""
 echo "FEDORA-SETUP: Zotero successfully installed."
+echo ""
+
+# ----------------------------------------------------------------------------
+#####
+# Installing Postman
+#####
+
+echo ""
+echo "FEDORA-SETUP: Installing Postman."
+echo ""
+
+# Download tarball
+wget -O "postman.tar.bz2" "https://dl.pstmn.io/download/latest/linux64" -o "/dev/null"
+
+# Extract with diffente owner from archiving
+tar -xf postman.tar.bz2 --no-same-owner 
+
+# Change extracted folder name
+mv Postman*/ postman/
+
+# Move folder
+mv postman/ /opt/
+
+# Change ownership to specified user
+chown -R $user_selected:$user_selected /opt/postman/
+
+# Clean root user folder from the downloaded tarball
+rm -f postman.tar.bz2
+
+# Create desktop shortcut
+tee $home_selected/.local/share/applications/Postman.desktop > /dev/null <<EOF
+[Desktop Entry]
+Encoding=UTF-8
+Name=Postman
+Exec=/opt/postman/app/Postman %U
+Icon=/opt/postman/app/resources/app/assets/icon.png
+Terminal=false
+Type=Application
+Categories=Development;
+EOF
+
+echo ""
+echo "FEDORA-SETUP: Postman successfully installed."
 echo ""
 
 # ----------------------------------------------------------------------------
