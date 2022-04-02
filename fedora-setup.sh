@@ -215,6 +215,16 @@ gpgkey=https://downloads.plex.tv/plex-keys/PlexSign.key
 gpgcheck=1
 EOF
 
+# Adoptium (OpenJDK)
+tee /etc/yum.repos.d/plex.repo > /dev/null <<EOF
+[Adoptium]
+name=Adoptium
+baseurl=https://packages.adoptium.net/artifactory/rpm/centos/8/$(uname -m)
+enabled=1
+gpgcheck=1
+gpgkey=https://packages.adoptium.net/artifactory/api/gpg/key/public
+EOF
+
 echo ""
 echo "FEDORA-SETUP: Instaling and configuring additional repositories finished."
 echo ""
@@ -304,7 +314,7 @@ nethogs `# Whats using all your traffic? Now you know!` \
 nload `# A tool can monitor network traffic and bandwidth usage in real time` \
 vim-enhanced `# full vim` \
 solaar `# Device manager for a wide range of Logitech devices` \
-java-latest-openjdk-devel `# OpenJDK latest version Development Environment` \
+temurin-17-jdk `# OpenJDK latest version Development Environment via Temurin` \
 texlive-scheme-full `# Texlive complete package`
 
 echo ""
