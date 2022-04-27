@@ -820,6 +820,13 @@ cp /usr/share/oh-my-zsh/zshrc ~/.zshrc
 chsh -s $(which zsh)
 EOC
 
+script_dir_path = "$(dirname $0)"
+if [ -f "$script_dir_path/.p10k.zsh" ] 
+then
+    cp $script_dir_path/.p10k.zsh root/
+    cp $script_dir_path/.p10k.zsh $home_selected/
+fi 
+
 # ----------------------------------------------------------------------------
 #####
 # Ending setup process
