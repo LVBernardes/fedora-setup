@@ -63,10 +63,10 @@ function eerror () { verb_lvl=$err_lvl elog "${colred}ERROR${colrst} --- $@" ;}
 function ecrit ()  { verb_lvl=$crt_lvl elog "${colpur}FATAL${colrst} --- $@" ;}
 function edumpvar () { for var in $@ ; do edebug "$var=${!var}" ; done }
 function elog() {
-        if [ $verbosity -ge $verb_lvl ]; then
-                datestring=`date +"%Y-%m-%d %H:%M:%S"`
-                echo -e "$datestring - $@"
-        fi
+    if [ $verbosity -ge $verb_lvl ]; then
+        datestring=`date +"%Y-%m-%d %H:%M:%S"`
+        echo -e "$datestring - $@"
+    fi
 }
  
 ScriptName=`basename $0`
@@ -74,47 +74,47 @@ Job=`basename $0 .sh`"_log"
 JobClass=`basename $0 .sh`
  
 function Log_Open() {
-        if [ $NO_JOB_LOGGING ] ; then
-                einfo "Not logging to a logfile because -Z option specified." #(*)
-        else
-                [[ -d $LOGDIR/$JobClass ]] || mkdir -p $LOGDIR/$JobClass
-                Pipe=${LOGDIR}/$JobClass/${Job}_${DATETIME}.pipe
-                mkfifo -m 700 $Pipe
-                LOGFILE=${LOGDIR}/$JobClass/${Job}_${DATETIME}.log
-                exec 3>&1
-                exec 2>&1
-                tee ${LOGFILE} <$Pipe >&3 &
-                teepid=$!
-                exec 1>$Pipe
-                PIPE_OPENED=1
-                enotify Logging to $LOGFILE  # (*)
-                [ $SUDO_USER ] && enotify "Sudo user: $SUDO_USER" #(*)
-        fi
+    if [ $NO_JOB_LOGGING ] ; then
+        einfo "Not logging to a logfile because -Z option specified." #(*)
+    else
+        [[ -d $LOGDIR/$JobClass ]] || mkdir -p $LOGDIR/$JobClass
+        Pipe=${LOGDIR}/$JobClass/${Job}_${DATETIME}.pipe
+        mkfifo -m 700 $Pipe
+        LOGFILE=${LOGDIR}/$JobClass/${Job}_${DATETIME}.log
+        exec 3>&1
+        exec 2>&1
+        tee ${LOGFILE} <$Pipe >&3 &
+        teepid=$!
+        exec 1>$Pipe
+        PIPE_OPENED=1
+        enotify Logging to $LOGFILE  # (*)
+        [ $SUDO_USER ] && enotify "Sudo user: $SUDO_USER" #(*)
+    fi
 }
  
 function Log_Close() {
-        if [ ${PIPE_OPENED} ] ; then
-                exec 1<&3
-                sleep 0.2
-                ps --pid $teepid >/dev/null
-                if [ $? -eq 0 ] ; then
-                        # a wait $teepid whould be better but some
-                        # commands leave file descriptors open
-                        sleep 1
-                        kill  $teepid
-                fi
-                rm $Pipe
-                unset PIPE_OPENED
+    if [ ${PIPE_OPENED} ] ; then
+        exec 1<&3
+        sleep 0.2
+        ps --pid $teepid >/dev/null
+        if [ $? -eq 0 ] ; then
+            # a wait $teepid whould be better but some
+            # commands leave file descriptors open
+            sleep 1
+            kill  $teepid
         fi
+        rm $Pipe
+        unset PIPE_OPENED
+    fi
 }
  
 OPTIND=1
 while getopts ":Z" opt ; do
-        case $opt in
-                Z)
-                        NO_JOB_LOGGING="true"
-                        ;;
-        esac
+    case $opt in
+        Z)
+            NO_JOB_LOGGING="true"
+            ;;
+    esac
 done
 
 Log_Open
@@ -215,11 +215,11 @@ gpgkey=https://downloads.plex.tv/plex-keys/PlexSign.key
 gpgcheck=1
 EOF
 
-# Adoptium (OpenJDK)
-tee /etc/yum.repos.d/plex.repo > /dev/null <<EOF
+# Adoptium (Temurin Eclipse OpenJDK)
+tee /etc/yum.repos.d/adoptium.repo > /dev/null <<EOF
 [Adoptium]
 name=Adoptium
-baseurl=https://packages.adoptium.net/artifactory/rpm/centos/8/$(uname -m)
+baseurl=https://packages.adoptium.net/artifactory/rpm/fedora/\$releasever/\$basearch
 enabled=1
 gpgcheck=1
 gpgkey=https://packages.adoptium.net/artifactory/api/gpg/key/public
@@ -264,6 +264,7 @@ echo ""
 
 dnf install \
 -y `# Do not ask for confirmation` \
+zsh `# zshell installation in preparation for oh-my-zsh` \
 kernel-modules `# kernel modules to match the core kernel` \
 fuse `# File System in Userspace (FUSE) v2 utilities` \
 fuse-common `# Common files for File System in Userspace (FUSE) v2 and v3` \
@@ -307,6 +308,7 @@ ansible-core-doc `# Documentation for Ansible Bas` \
 ansible-collection-ansible-netcommon `# Ansible Network Collection for Common Cod` \
 ansible-collection-ansible-posix `# Ansible Collection targeting POSIX and POSIX-ish platforms` \
 ansible-collection-ansible-utils `# Ansible Network Collection for Common Code` \
+chsh `# A utility to configure shell properties` \
 meld `# Visual diff and merge tool` \
 nano `# Because pressing i is too hard sometimes` \
 neovim `# Vim-fork focused on extensibility and agility` \
@@ -469,22 +471,25 @@ echo ""
 # Install and configure nvidia and CUDA drivers
 #####
 
-echo ""
-echo "FEDORA-SETUP: Installing NVidia drivers."
-echo ""
+if [ -n "$(lspci | grep -E "NVIDIA|nvidia|Nvidia|NVidia")" ]
+then
+        echo ""
+        echo "FEDORA-SETUP: Installing NVidia drivers."
+        echo ""
 
-dnf install \
--y `# Do not ask for confirmation` \
-nvidia-driver `# Basic NVidia drivers for amd64` \
-nvidia-driver-libs.i686 `#B asic NVidia drivers for x86` \
-nvidia-driver-cuda `# Basic CUDA drivers for amd64` \
-nvidia-settings `# NVidia control panel` \
-cuda-devel `# CUDA development packages` \
-cuda-cudnn `# CUDA development packages for deep neural networks`
+        dnf install \
+        -y `# Do not ask for confirmation` \
+        nvidia-driver `# Basic NVidia drivers for amd64` \
+        nvidia-driver-libs.i686 `#B asic NVidia drivers for x86` \
+        nvidia-driver-cuda `# Basic CUDA drivers for amd64` \
+        nvidia-settings `# NVidia control panel` \
+        cuda-devel `# CUDA development packages` \
+        cuda-cudnn `# CUDA development packages for deep neural networks`
 
-echo ""
-echo "FEDORA-SETUP: Installing NVidia drivers finished."
-echo ""
+        echo ""
+        echo "FEDORA-SETUP: Installing NVidia drivers finished."
+        echo ""
+fi
 
 # ----------------------------------------------------------------------------
 #####
@@ -681,24 +686,26 @@ echo "FEDORA-SETUP: Configuring dconf settings."
 echo ""
 
 # This indexer is nice, but can be detrimental for laptop users battery life
-sudo -E -u $user_selected bash <<EOF
+sudo -E -u $user_selected bash <<EOC
 gsettings set org.freedesktop.Tracker3.Miner.Files index-on-battery false
 gsettings set org.freedesktop.Tracker3.Miner.Files index-on-battery-first-time false
 gsettings set org.freedesktop.Tracker3.Miner.Files throttle 15
-EOF
+EOC
 
 # Nautilus (File Manager) Usability
-sudo -E -u $user_selected bash <<EOF
+sudo -E -u $user_selected bash <<EOC
 gsettings set org.gnome.nautilus.icon-view default-zoom-level 'standard'
 gsettings set org.gnome.nautilus.list-view use-tree-view true
 gsettings set org.gnome.nautilus.list-view default-column-order "['name','size','type','mime_type','owner','group','permissions','where','date_modified','date_created','date_modified_with_time','date_accessed','recency','starred']"
 gsettings set org.gnome.nautilus.list-view default-visible-columns "['name','size','type','mime_type','date_modified','date_created','starred']"
 gsettings set org.gtk.Settings.FileChooser sort-directories-first true
 gsettings set org.gtk.Settings.FileChooser date-format 'with-time'
-EOF
+gsettings set org.gtk.Settings.FileChooser show-hidden true
+gsettings set org.gtk.Settings.FileChooser type-format 'mime'
+EOC
 
 # Usability Improvements
-sudo -E -u $user_selected bash <<EOF
+sudo -E -u $user_selected bash <<EOC
 gsettings set org.gnome.desktop.interface clock-show-weekday true
 gsettings set org.gnome.desktop.interface clock-show-seconds true
 gsettings set org.gnome.desktop.peripherals.mouse accel-profile 'adaptive'
@@ -707,18 +714,111 @@ gsettings set org.gnome.desktop.calendar show-weekdate true
 gsettings set org.gnome.desktop.wm.preferences resize-with-right-button true
 gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close'
 gsettings set org.gnome.shell.overrides workspaces-only-on-primary false
-EOF
+EOC
 
-# Theme configuration
-sudo -E -u $user_selected bash <<EOF
+# Apps and UX configs for different Gnome Shell versions
+if [ "$(gnome-shell --version | cut -d" " -f3 | cut -d. -f1)" -ge 42 ]
+then
+    # Configurations for GNOME 42 and superior
+    sudo -E -u $user_selected bash <<-EOC
+gsettings set org.gnome.desktop.interface color-scheme prefer-dark
+gsettings set org.gtk4.Settings.FileChooser sort-directories-first true
+gsettings set org.gtk4.Settings.FileChooser date-format 'with-time'
+gsettings set org.gtk4.Settings.FileChooser show-hidden true
+gsettings set org.gtk4.Settings.FileChooser type-format 'mime'
+gsettings set org.gnome.TextEditor highlight-current-line true
+gsettings set org.gnome.TextEditor indent-style 'space'
+gsettings set org.gnome.TextEditor show-grid true
+gsettings set org.gnome.TextEditor show-line-numbers true
+gsettings set org.gnome.TextEditor show-map true
+gsettings set org.gnome.TextEditor show-right-margin true
+gsettings set org.gnome.TextEditor tab-width 4
+EOC
+else
+    # Theme configuration
+    sudo -E -u $user_selected bash <<-EOC
 gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
 gsettings set org.gnome.desktop.interface icon-theme 'breeze-dark'
-EOF
+EOC
+fi
 
-# # Shell Extensions Activation
+
+# # GNOME Shell Extensions Activation
 # sudo -E -u $user_selected bash <<EOF
 # gsettings set org.gnome.shell enabled-extensions "['background-logo@fedorahosted.org','sound-output-device-chooser@kgshank.net','mediacontrols@cliffniff.github.com','caffeine@patapon.info','appindicatorsupport@rgcjonas.gmail.com']"
 # EOF
+
+# ----------------------------------------------------------------------------
+#####
+# Oh-My-Zsh and Powerlevel10k configuration
+#####
+
+echo ""
+echo "FEDORA-SETUP: Installing and Configuring Oh-My-Zsh with Powerlevel10k."
+echo ""
+
+# Install oh-my-szh
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+
+# Add oh-my-zsh to /usr/share
+mv /root/.oh-my-zsh /usr/share
+mv /usr/share/.oh-my-zsh /usr/share/oh-my-zsh
+mv /root/.zshrc /usr/share/oh-my-zsh
+mv /usr/share/oh-my-zsh/.zshrc /usr/share/oh-my-zsh/zshrc
+
+# Modify zshrc to point to /usr/share/oh-my-zsh
+sed -i 's|export ZSH="$HOME/.oh-my-zsh"|export ZSH="\/usr\/share\/oh-my-zsh"|g' /usr/share/oh-my-zsh/zshrc
+
+# Enable Autocorrection for zsh
+sed -i 's/# ENABLE_CORRECTION="true"/ENABLE_CORRECTION="true"/g' /usr/share/oh-my-zsh/zshrc
+
+# Enable Autosuggestions and sintax highlighting plugins ofr zsh
+git clone --depth=1 https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-/usr/share/oh-my-zsh/custom}/plugins/zsh-autosuggestions
+git clone --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-/usr/share/oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+sed -i 's/plugins=(git)/plugins=(\n  git\n  zsh-autosuggestions\n  zsh-syntax-highlighting\n)/' /usr/share/oh-my-zsh/zshrc
+sed -i 's/plugins=(git)/plugins=(git)\nZSH_DISABLE_COMPFIX=true/' /usr/share/oh-my-zsh/zshrc
+
+# Create a backup copy of original zshrc
+cp /usr/share/oh-my-zsh/zshrc /usr/share/oh-my-zsh/zshrc.backup
+
+## Install recommended fonts (Nerd Fonts) for Powerlevel10k
+mkdir -p /usr/share/fonts/meslo
+wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Meslo.zip
+sudo unzip Meslo.zip -d /usr/share/fonts/meslo
+sudo fc-cache -fv
+
+## Install Powelevel10k
+git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-/usr/share/oh-my-zsh/custom}/themes/powerlevel10k
+
+# Configure .zshrc file to use Powerlevel10k
+sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="powerlevel10k\/powerlevel10k"/g' /usr/share/oh-my-zsh/zshrc
+tee -a /usr/share/oh-my-zsh/zshrc > /dev/null << 'EOI'
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+EOI
+
+sed -i '1i\
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.\
+# Initialization code that may require console input (password prompts, [y/n]\
+# confirmations, etc.) must go above this block; everything else may go below.\
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then\
+    source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"\
+fi\
+' /usr/share/oh-my-zsh/zshrc
+
+# Create Symbolic Links to /etc/skel
+sudo ln /usr/share/oh-my-zsh/zshrc /etc/skel/.zshrc
+
+# Copy zshrc to $HOME for root and change default shell to ZSH
+cp /usr/share/oh-my-zsh/zshrc root/.zshrc
+echo "$USER" | chsh -s /bin/zsh
+
+# Copy zshrc to $HOME for user and change default shell to ZSH
+sudo -E -u $user_selected bash <<EOC
+cp /usr/share/oh-my-zsh/zshrc ~/.zshrc
+chsh -s $(which zsh)
+EOC
 
 # ----------------------------------------------------------------------------
 #####
