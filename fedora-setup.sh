@@ -225,6 +225,9 @@ gpgcheck=1
 gpgkey=https://packages.adoptium.net/artifactory/api/gpg/key/public
 EOF
 
+# There was no available temurin jdk package for fedora 36 yet
+dnf config-manager --set-disabled Adoptium
+
 echo ""
 echo "FEDORA-SETUP: Instaling and configuring additional repositories finished."
 echo ""
@@ -308,7 +311,7 @@ ansible-core-doc `# Documentation for Ansible Bas` \
 ansible-collection-ansible-netcommon `# Ansible Network Collection for Common Cod` \
 ansible-collection-ansible-posix `# Ansible Collection targeting POSIX and POSIX-ish platforms` \
 ansible-collection-ansible-utils `# Ansible Network Collection for Common Code` \
-chsh `# A utility to configure shell properties` \
+util-linux-user `# A utility with chsh program to change shell` \
 meld `# Visual diff and merge tool` \
 nano `# Because pressing i is too hard sometimes` \
 neovim `# Vim-fork focused on extensibility and agility` \
@@ -316,7 +319,6 @@ nethogs `# Whats using all your traffic? Now you know!` \
 nload `# A tool can monitor network traffic and bandwidth usage in real time` \
 vim-enhanced `# full vim` \
 solaar `# Device manager for a wide range of Logitech devices` \
-temurin-17-jdk `# OpenJDK latest version Development Environment via Temurin` \
 texlive-scheme-full `# Texlive complete package`
 
 echo ""
@@ -671,6 +673,7 @@ chown -R $user_selected:$user_selected $home_selected/.bin/appimagefiles/obisidi
 wget -q -O "jetbrains-toolbox.tar.bz2" -o "/dev/null" "https://download.jetbrains.com/toolbox/jetbrains-toolbox-1.22.10685.tar.gz"
 tar -xf jetbrains-toolbox.tar.bz2 --strip-components=1 -C $home_selected/.bin/appimagefiles/
 chown $user_selected:$user_selected $home_selected/.bin/appimagefiles/jetbrains-toolbox
+rm jetbrains-toolbox.tar.bz2
 
 echo ""
 echo "FEDORA-SETUP: Installing and configuring AppImage applications finished."
@@ -714,6 +717,11 @@ gsettings set org.gnome.desktop.calendar show-weekdate true
 gsettings set org.gnome.desktop.wm.preferences resize-with-right-button true
 gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close'
 gsettings set org.gnome.shell.overrides workspaces-only-on-primary false
+gsettings set org.gnome.system.locale region 'pt_BR.UTF-8'
+gsettings set org.gnome.desktop.input-sources sources"[('xkb', 'br'), ('xkb', 'us')]"
+gsettings set org.gnome.settings-daemon.plugins.media-keys "['<Super>e']"
+gsettings set org.gnome.Weather locations "[<(uint32 2, <('São Paulo', 'SBMT', true, [(-0.41044326824509736, -0.8139052020289248)], [(-0.41073414481823473, -0.81361432545578749)])>)>]"
+gsettings set org.gnome.GWeather temperature-unit 'centigrade'
 EOC
 
 # Apps and UX configs for different Gnome Shell versions
@@ -733,6 +741,7 @@ gsettings set org.gnome.TextEditor show-line-numbers true
 gsettings set org.gnome.TextEditor show-map true
 gsettings set org.gnome.TextEditor show-right-margin true
 gsettings set org.gnome.TextEditor tab-width 4
+gsettings set org.gnome.GWeather4 temperature-unit 'centigrade'
 EOC
 else
     # Theme configuration
@@ -747,6 +756,10 @@ fi
 # sudo -E -u $user_selected bash <<EOF
 # gsettings set org.gnome.shell enabled-extensions "['background-logo@fedorahosted.org','sound-output-device-chooser@kgshank.net','mediacontrols@cliffniff.github.com','caffeine@patapon.info','appindicatorsupport@rgcjonas.gmail.com']"
 # EOF
+
+echo ""
+echo "FEDORA-SETUP: Configuring dconf settings finished."
+echo ""
 
 # ----------------------------------------------------------------------------
 #####
@@ -783,9 +796,10 @@ cp /usr/share/oh-my-zsh/zshrc /usr/share/oh-my-zsh/zshrc.backup
 
 ## Install recommended fonts (Nerd Fonts) for Powerlevel10k
 mkdir -p /usr/share/fonts/meslo
-wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Meslo.zip
-sudo unzip Meslo.zip -d /usr/share/fonts/meslo
-sudo fc-cache -fv
+wget -q https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Meslo.zip
+unzip -q Meslo.zip -d /usr/share/fonts/meslo
+fc-cache -fv
+rm  Meslo.zip
 
 ## Install Powelevel10k
 git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-/usr/share/oh-my-zsh/custom}/themes/powerlevel10k
@@ -820,10 +834,10 @@ cp /usr/share/oh-my-zsh/zshrc ~/.zshrc
 chsh -s $(which zsh)
 EOC
 
-script_dir_path = "$(dirname $0)"
+script_dir_path="$(dirname $0)"
 if [ -f "$script_dir_path/.p10k.zsh" ] 
 then
-    cp $script_dir_path/.p10k.zsh root/
+    cp $script_dir_path/.p10k.zsh /root/
     cp $script_dir_path/.p10k.zsh $home_selected/
 fi 
 
