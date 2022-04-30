@@ -267,33 +267,40 @@ echo ""
 
 dnf install \
 -y `# Do not ask for confirmation` \
-zsh `# zshell installation in preparation for oh-my-zsh` \
-kernel-modules `# kernel modules to match the core kernel` \
+ansible `# SSH-based configuration management, deployment, and task execution system` \
+ansible-collection-ansible-netcommon `# Ansible Network Collection for Common Cod` \
+ansible-collection-ansible-posix `# Ansible Collection targeting POSIX and POSIX-ish platforms` \
+ansible-collection-ansible-utils `# Ansible Network Collection for Common Code` \
+ansible-core-doc `# Documentation for Ansible Bas` \
+bat `# cat(1) clone with wings` \
+curl `# A utility for getting files from remote servers (FTP, HTTP, and others)` \
+dnf-plugins-core `# Core Plugins for DNF` \
+exa `# Modern replacement for ls` \
+exfatprogs `# Userspace utilities for exFAT filesystems` \
+ffmpeg `# Adds Codec Support to Firefox, and in general` \
 fuse `# File System in Userspace (FUSE) v2 utilities` \
 fuse-common `# Common files for File System in Userspace (FUSE) v2 and v3` \
 fuse-sshfs `# FUSE-Filesystem to access remote filesystems via SSH` \
-squashfuse `# FUSE filesystem to mount squashfs archives` \
 gcc `# Various compilers (C, C++, Objective-C, ...)` \
 gcc-c++ `# C++ support for GCC` \
-dnf-plugins-core `# Core Plugins for DNF` \
-kernel-devel `# Development package for building kernel modules to match the kernel` \
 git `# Fast Version Control System` \
-jq `# Command-line JSON processor` \
-curl `# A utility for getting files from remote servers (FTP, HTTP, and others)` \
-wget `# A utility for retrieving files using the HTTP or FTP protocols` \
-httpie `# A Curl-like tool for humans` \
-unzip `# A utility for unpacking zip files` \
-bat `# cat(1) clone with wings` \
 gtkhash `# GTK+ utility for computing message digests or checksums` \
-exfatprogs `# Userspace utilities for exFAT filesystems` \
-ffmpeg `# Adds Codec Support to Firefox, and in general` \
 gvfs `# Backends for the gio framework in GLib` \
 gvfs-fuse `# gnome<>fuse` \
 gvfs-mtp `# gnome<>android` \
 gvfs-nfs `# gnome<>ntfs` \
 gvfs-smb `# gnome<>samba` \
 htop `# Interactive CLI process monitor` \
+httpie `# A Curl-like tool for humans` \
+jq `# Command-line JSON processor` \
+kernel-devel `# Development package for building kernel modules to match the kernel` \
+kernel-modules `# kernel modules to match the core kernel` \
+meld `# Visual diff and merge tool` \
+nano `# Because pressing i is too hard sometimes` \
+neovim `# Vim-fork focused on extensibility and agility` \
+nethogs `# Whats using all your traffic? Now you know!` \
 NetworkManager-openvpn-gnome `# To enforce that its possible to import .ovpn files in the settings` \
+nload `# A tool can monitor network traffic and bandwidth usage in real time` \
 openssh-askpass `# Base Lib to let applications request ssh pass via gui` \
 p7zip `# Very high compression ratio file archiver` \
 p7zip-plugins `# Additional plugins for p7zip` \
@@ -301,25 +308,20 @@ pv `# A tool for monitoring the progress of data through a pipeline ( | )` \
 python3 `# Python core library` \
 python3-devel `# Python Development Gear` \
 python3-neovim `# Python Neovim Libs` \
+solaar `# Device manager for a wide range of Logitech devices` \
+squashfuse `# FUSE filesystem to mount squashfs archives` \
+texlive-scheme-full `# Texlive complete package` \
 tuned `# Tuned can optimize your performance according to metrics. tuned-adm profile powersave can help you on laptops, alot` \
 tuned-gtk `# GTK GUI for tuned` \
 tuned-switcher `# Simple utility to manipulate the Tuned service` \
 tuned-utils `# Various tuned utilities` \
 unar `# free rar decompression` \
-ansible `# SSH-based configuration management, deployment, and task execution system` \
-ansible-core-doc `# Documentation for Ansible Bas` \
-ansible-collection-ansible-netcommon `# Ansible Network Collection for Common Cod` \
-ansible-collection-ansible-posix `# Ansible Collection targeting POSIX and POSIX-ish platforms` \
-ansible-collection-ansible-utils `# Ansible Network Collection for Common Code` \
+unzip `# A utility for unpacking zip files` \
 util-linux-user `# A utility with chsh program to change shell` \
-meld `# Visual diff and merge tool` \
-nano `# Because pressing i is too hard sometimes` \
-neovim `# Vim-fork focused on extensibility and agility` \
-nethogs `# Whats using all your traffic? Now you know!` \
-nload `# A tool can monitor network traffic and bandwidth usage in real time` \
 vim-enhanced `# full vim` \
-solaar `# Device manager for a wide range of Logitech devices` \
-texlive-scheme-full `# Texlive complete package`
+wget `# A utility for retrieving files using the HTTP or FTP protocols` \
+zsh `# zshell installation in preparation for oh-my-zsh`
+
 
 echo ""
 echo "FEDORA-SETUP: Installing base packages and terminal applications finished."
@@ -336,15 +338,19 @@ echo ""
 
 dnf install \
 -y `# Do not ask for confirmation` \
-vlc `# The cross-platform open-source multimedia framework, player and server` \
-code `# Visual Studio Code application` \
-google-chrome-stable `# Google Chrome` \
-flameshot `# Powerful and simple to use screenshot software` \
 blender `# 3D Software Powerhouse` \
 calibre `# Ebook management` \
+cockpit `# An awesome local and remote management tool` \
+cockpit-navigator `# A File System Browser for Cockpit` \
+cockpit-networkmanager `# Manage your network interfaces and edit your firewall with ease.` \
+cockpit-packagekit `# See and apply updates to your system. Supports RPM and DEB based systems through PackageKit.` \
+cockpit-podman `# Download, use, and manage containers in your browser. (Podman replaces Docker.)` \
+cockpit-storaged `# Manage your system’s storage. Supports local partitions, encryption, NFS, RAID, iSCSI, and more.` \
+code `# Visual Studio Code application` \
 darktable `# Easy RAW Editor` \
 dconf-editor `# Configuration editor for dconf` \
 filezilla `# S/FTP Access` \
+flameshot `# Powerful and simple to use screenshot software` \
 gimp `# The Image Editing Powerhouse - and its plugins` \
 gimp-data-extras \
 gimp-dbp \
@@ -363,24 +369,21 @@ gimp-resynthesizer \
 gimp-save-for-web \
 gimp-wavelet-decompose \
 gimp-wavelet-denoise-plugin \
-gmic-gimp \
 glances `# Nice CLI Monitor for your System` \
-inkscape  `# Working with .svg files` \
-krita  `# Painting done right` \
+gmic-gimp \
+google-chrome-stable `# Google Chrome` \
+inkscape  `# Working with .svg files` \
+krita  `# Painting done right` \
 lm_sensors `# Hardware monitoring tools` \
 lm_sensors-sensord `# Daemon that periodically logs sensor readings` \
-rawtherapee `# Professional RAW Editor` \
+plexmediaserver `# Plex organizes all of your personal media so you can easily access and enjoy it.` \
 qbittorrent `# A bittorrent Client` \
-cockpit `# An awesome local and remote management tool` \
-cockpit-navigator `# A File System Browser for Cockpit` \
-cockpit-storaged `# Manage your system’s storage. Supports local partitions, encryption, NFS, RAID, iSCSI, and more.` \
-cockpit-networkmanager `# Manage your network interfaces and edit your firewall with ease.` \
-cockpit-packagekit `# See and apply updates to your system. Supports RPM and DEB based systems through PackageKit.` \
-cockpit-podman `# Download, use, and manage containers in your browser. (Podman replaces Docker.)` \
-ulauncher `# Linux Application Launcher` \
-thunderbird `# Mozilla Thunderbird mail/newsgroup client` \
+rawtherapee `# Professional RAW Editor` \
 texstudio `# A feature-rich editor for LaTeX documents` \
-plexmediaserver `# Plex organizes all of your personal media so you can easily access and enjoy it.`
+thunderbird `# Mozilla Thunderbird mail/newsgroup client` \
+ulauncher `# Linux Application Launcher` \
+vlc `# The cross-platform open-source multimedia framework, player and server`
+
 
 echo ""
 echo "FEDORA-SETUP: Installing applications finished."
@@ -398,20 +401,20 @@ echo ""
 dnf install \
 -y `# Do not ask for confirmation` \
 adobe-source-code-pro-fonts `# The most beautiful monospace font around` \
-'mozilla-fira-*' `# A nice font family` \
+arc-theme `# Flat theme with transparent elements` \
+beesu `# Graphical wrapper for su` \
 file-roller-nautilus `# More Archives supported in nautilus` \
+gnome-extensions-app `# Manage GNOME Shell extensions` \
+gnome-shell-extension-user-theme `# Enables theming the gnome shell` \
+gnome-terminal-nautilus `# GNOME Terminal extension for Nautilus` \
+gnome-tweaks `# Your central place to make gnome like you want` \
+gtkhash-nautilus `# To get a file hash via GUI` \
+'mozilla-fira-*' `# A nice font family` \
 nautilus-extensions `# What it says on the tin` \
 nautilus-image-converter `# Image converter option in context menu` \
-nautilus-search-tool `# Searh option in context menu` \
-gnome-terminal-nautilus `# GNOME Terminal extension for Nautilus` \
 nautilus-python `# Python bindings for Nautilus` \
-beesu `# Graphical wrapper for su` \
-gtkhash-nautilus `# To get a file hash via GUI` \
-gnome-extensions-app `# Manage GNOME Shell extensions` \
-gnome-tweaks `# Your central place to make gnome like you want` \
-gnome-shell-extension-user-theme `# Enables theming the gnome shell` \
-papirus-icon-theme `# Free and open source SVG icon theme based on Paper Icon Set` \
-arc-theme `# Flat theme with transparent elements`
+nautilus-search-tool `# Searh option in context menu` \
+papirus-icon-theme `# Free and open source SVG icon theme based on Paper Icon Set`
 
 echo ""
 echo "FEDORA-SETUP: Installing extension, fonts and themes finished."
@@ -647,6 +650,9 @@ additional_directories_to_watch = $home_selected:$home_selected/Downloads
 # monitor_mounted_filesystems = false
 EOF
 
+# Clean AppImageLauncher file
+rm $home_selected/appimagelauncher.rpm
+
 echo ""
 echo "FEDORA-SETUP: Installing and configuring AppImageLauncher integrator finished."
 echo ""
@@ -670,10 +676,10 @@ wget -q -O "$home_selected/.bin/appimagefiles/obisidian.AppImage" -o "/dev/null"
 chown -R $user_selected:$user_selected $home_selected/.bin/appimagefiles/obisidian.AppImage
 
 # Download and install JetBrains ToolBox
-wget -q -O "jetbrains-toolbox.tar.bz2" -o "/dev/null" "https://download.jetbrains.com/toolbox/jetbrains-toolbox-1.22.10685.tar.gz"
-tar -xf jetbrains-toolbox.tar.bz2 --strip-components=1 -C $home_selected/.bin/appimagefiles/
+wget -q -O "/tmp/jetbrains-toolbox.tar.bz2" -o "/dev/null" "https://download.jetbrains.com/toolbox/jetbrains-toolbox-1.22.10685.tar.gz"
+tar -xf /tmp/jetbrains-toolbox.tar.bz2 --strip-components=1 -C $home_selected/.bin/appimagefiles/
 chown $user_selected:$user_selected $home_selected/.bin/appimagefiles/jetbrains-toolbox
-rm jetbrains-toolbox.tar.bz2
+rm /tmp/jetbrains-toolbox.tar.bz2
 
 echo ""
 echo "FEDORA-SETUP: Installing and configuring AppImage applications finished."
@@ -718,8 +724,8 @@ gsettings set org.gnome.desktop.wm.preferences resize-with-right-button true
 gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close'
 gsettings set org.gnome.shell.overrides workspaces-only-on-primary false
 gsettings set org.gnome.system.locale region 'pt_BR.UTF-8'
-gsettings set org.gnome.desktop.input-sources sources"[('xkb', 'br'), ('xkb', 'us')]"
-gsettings set org.gnome.settings-daemon.plugins.media-keys "['<Super>e']"
+gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'br'), ('xkb', 'us')]"
+gsettings set org.gnome.settings-daemon.plugins.media-keys home "['<Super>e']"
 gsettings set org.gnome.Weather locations "[<(uint32 2, <('São Paulo', 'SBMT', true, [(-0.41044326824509736, -0.8139052020289248)], [(-0.41073414481823473, -0.81361432545578749)])>)>]"
 gsettings set org.gnome.GWeather temperature-unit 'centigrade'
 EOC
@@ -771,16 +777,16 @@ echo "FEDORA-SETUP: Installing and Configuring Oh-My-Zsh with Powerlevel10k."
 echo ""
 
 # Install oh-my-szh
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+$ZSH=/usr/share/oh-my-zsh/ sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 
-# Add oh-my-zsh to /usr/share
-mv /root/.oh-my-zsh /usr/share
-mv /usr/share/.oh-my-zsh /usr/share/oh-my-zsh
-mv /root/.zshrc /usr/share/oh-my-zsh
-mv /usr/share/oh-my-zsh/.zshrc /usr/share/oh-my-zsh/zshrc
+# # Add oh-my-zsh to /usr/share
+# mv /root/.oh-my-zsh /usr/share
+# mv /usr/share/.oh-my-zsh /usr/share/oh-my-zsh
+# mv /root/.zshrc /usr/share/oh-my-zsh
+# mv /usr/share/oh-my-zsh/.zshrc /usr/share/oh-my-zsh/zshrc
 
-# Modify zshrc to point to /usr/share/oh-my-zsh
-sed -i 's|export ZSH="$HOME/.oh-my-zsh"|export ZSH="\/usr\/share\/oh-my-zsh"|g' /usr/share/oh-my-zsh/zshrc
+# # Modify zshrc to point to /usr/share/oh-my-zsh
+# sed -i 's|export ZSH="$HOME/.oh-my-zsh"|export ZSH="\/usr\/share\/oh-my-zsh"|g' /usr/share/oh-my-zsh/zshrc
 
 # Enable Autocorrection for zsh
 sed -i 's/# ENABLE_CORRECTION="true"/ENABLE_CORRECTION="true"/g' /usr/share/oh-my-zsh/zshrc
@@ -796,10 +802,10 @@ cp /usr/share/oh-my-zsh/zshrc /usr/share/oh-my-zsh/zshrc.backup
 
 ## Install recommended fonts (Nerd Fonts) for Powerlevel10k
 mkdir -p /usr/share/fonts/meslo
-wget -q https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Meslo.zip
-unzip -q Meslo.zip -d /usr/share/fonts/meslo
-fc-cache -fv
-rm  Meslo.zip
+wget -q https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Meslo.zip -O /tmp/Meslo.zip
+unzip -q /tmp/Meslo.zip -d /usr/share/fonts/meslo
+fc-cache -f
+rm  /tmp/Meslo.zip
 
 ## Install Powelevel10k
 git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-/usr/share/oh-my-zsh/custom}/themes/powerlevel10k
@@ -831,7 +837,7 @@ echo "$USER" | chsh -s /bin/zsh
 # Copy zshrc to $HOME for user and change default shell to ZSH
 sudo -E -u $user_selected bash <<EOC
 cp /usr/share/oh-my-zsh/zshrc ~/.zshrc
-chsh -s $(which zsh)
+sudo chsh -s $(which zsh)
 EOC
 
 script_dir_path="$(dirname $0)"
