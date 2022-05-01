@@ -372,8 +372,8 @@ gimp-wavelet-denoise-plugin \
 glances `# Nice CLI Monitor for your System` \
 gmic-gimp \
 google-chrome-stable `# Google Chrome` \
-inkscape  `# Working with .svg files` \
-krita  `# Painting done right` \
+inkscape `# Working with .svg files` \
+krita `# Painting done right` \
 lm_sensors `# Hardware monitoring tools` \
 lm_sensors-sensord `# Daemon that periodically logs sensor readings` \
 plexmediaserver `# Plex organizes all of your personal media so you can easily access and enjoy it.` \
@@ -676,9 +676,9 @@ wget -q -O "$home_selected/.bin/appimagefiles/obisidian.AppImage" -o "/dev/null"
 chown -R $user_selected:$user_selected $home_selected/.bin/appimagefiles/obisidian.AppImage
 
 # Download and install JetBrains ToolBox
-wget -q -O "/tmp/jetbrains-toolbox.tar.bz2" -o "/dev/null" "https://download.jetbrains.com/toolbox/jetbrains-toolbox-1.22.10685.tar.gz"
+wget -q -O "/tmp/jetbrains-toolbox.tar.bz2" -o "/dev/null" "https://download.jetbrains.com/toolbox/jetbrains-toolbox-1.23.11849.tar.gz"
 tar -xf /tmp/jetbrains-toolbox.tar.bz2 --strip-components=1 -C $home_selected/.bin/appimagefiles/
-chown $user_selected:$user_selected $home_selected/.bin/appimagefiles/jetbrains-toolbox
+chown -R $user_selected:$user_selected $home_selected/.bin/appimagefiles/jetbrains-toolbox
 rm /tmp/jetbrains-toolbox.tar.bz2
 
 echo ""
@@ -736,10 +736,10 @@ then
     # Configurations for GNOME 42 and superior
     sudo -E -u $user_selected bash <<-EOC
 gsettings set org.gnome.desktop.interface color-scheme prefer-dark
-gsettings set org.gtk4.Settings.FileChooser sort-directories-first true
-gsettings set org.gtk4.Settings.FileChooser date-format 'with-time'
-gsettings set org.gtk4.Settings.FileChooser show-hidden true
-gsettings set org.gtk4.Settings.FileChooser type-format 'mime'
+gsettings set org.gtk.gtk4.Settings.FileChooser sort-directories-first true
+gsettings set org.gtk.gtk4.Settings.FileChooser date-format 'with-time'
+gsettings set org.gtk.gtk4.Settings.FileChooser show-hidden true
+gsettings set org.gtk.gtk4.Settings.FileChooser type-format 'mime'
 gsettings set org.gnome.TextEditor highlight-current-line true
 gsettings set org.gnome.TextEditor indent-style 'space'
 gsettings set org.gnome.TextEditor show-grid true
@@ -756,7 +756,6 @@ gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
 gsettings set org.gnome.desktop.interface icon-theme 'breeze-dark'
 EOC
 fi
-
 
 # # GNOME Shell Extensions Activation
 # sudo -E -u $user_selected bash <<EOF
@@ -777,13 +776,13 @@ echo "FEDORA-SETUP: Installing and Configuring Oh-My-Zsh with Powerlevel10k."
 echo ""
 
 # Install oh-my-szh
-$ZSH=/usr/share/oh-my-zsh/ sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+ZSH=/usr/share/oh-my-zsh sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 
 # # Add oh-my-zsh to /usr/share
 # mv /root/.oh-my-zsh /usr/share
 # mv /usr/share/.oh-my-zsh /usr/share/oh-my-zsh
-# mv /root/.zshrc /usr/share/oh-my-zsh
-# mv /usr/share/oh-my-zsh/.zshrc /usr/share/oh-my-zsh/zshrc
+mv /root/.zshrc /usr/share/oh-my-zsh
+mv /usr/share/oh-my-zsh/.zshrc /usr/share/oh-my-zsh/zshrc
 
 # # Modify zshrc to point to /usr/share/oh-my-zsh
 # sed -i 's|export ZSH="$HOME/.oh-my-zsh"|export ZSH="\/usr\/share\/oh-my-zsh"|g' /usr/share/oh-my-zsh/zshrc
@@ -831,20 +830,20 @@ fi\
 sudo ln /usr/share/oh-my-zsh/zshrc /etc/skel/.zshrc
 
 # Copy zshrc to $HOME for root and change default shell to ZSH
-cp /usr/share/oh-my-zsh/zshrc root/.zshrc
+cp /usr/share/oh-my-zsh/zshrc /root/.zshrc
 echo "$USER" | chsh -s /bin/zsh
 
 # Copy zshrc to $HOME for user and change default shell to ZSH
-sudo -E -u $user_selected bash <<EOC
-cp /usr/share/oh-my-zsh/zshrc ~/.zshrc
-sudo chsh -s $(which zsh)
-EOC
+cp /usr/share/oh-my-zsh/zshrc $home_selected/.zshrc
+usermod --shell $(which zsh) $user_selected
+chown -R $user_selected:$user_selected $home_selected/.zshrc
 
+# Copy Powerlevel10k config file to both root and user home directories
 script_dir_path="$(dirname $0)"
-if [ -f "$script_dir_path/.p10k.zsh" ] 
+if [ -f "$script_dir_path/p10k.zsh" ] 
 then
-    cp $script_dir_path/.p10k.zsh /root/
-    cp $script_dir_path/.p10k.zsh $home_selected/
+    cp $script_dir_path/p10k.zsh /root/.p10k.zsh
+    cp $script_dir_path/p10k.zsh $home_selected/.p10k.zsh
 fi 
 
 # ----------------------------------------------------------------------------
