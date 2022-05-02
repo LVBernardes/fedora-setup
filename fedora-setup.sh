@@ -733,7 +733,7 @@ gsettings set org.gnome.desktop.wm.preferences resize-with-right-button true
 gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close'
 gsettings set org.gnome.shell.overrides workspaces-only-on-primary false
 gsettings set org.gnome.system.locale region 'pt_BR.UTF-8'
-gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'br'), ('xkb', 'us')]"
+gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'br'), ('xkb', 'us+intl')]"
 gsettings set org.gnome.settings-daemon.plugins.media-keys home "['<Super>e']"
 gsettings set org.gnome.Weather locations "[<(uint32 2, <('São Paulo', 'SBMT', true, [(-0.41044326824509736, -0.8139052020289248)], [(-0.41073414481823473, -0.81361432545578749)])>)>]"
 gsettings set org.gnome.GWeather temperature-unit 'centigrade'
@@ -860,14 +860,13 @@ if [ -f "$script_dir_path/p10k.zsh" ]
 then
     cp $script_dir_path/p10k.zsh /root/.p10k.zsh
     cp $script_dir_path/p10k.zsh $home_selected/.p10k.zsh
+    chwon -R $user_selected:$user_selected $home_selected $home_selected/.p10k.zsh
 fi 
 
 # ----------------------------------------------------------------------------
 #####
 # Ending setup process
 #####
-
-chwon -R $user_selected:$user_selected $home_selected
 
 echo ""
 echo "FEDORA-SETUP: Ending setup."
