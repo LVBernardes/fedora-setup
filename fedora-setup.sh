@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Store script directory name full path to use later
-script_dir_path=$(cd 'dirname $0' > && pwd -P)
+script_dir_path=$(cd 'dirname $0' && pwd -P)
 
 # ----------------------------------------------------------------------------
 #####
