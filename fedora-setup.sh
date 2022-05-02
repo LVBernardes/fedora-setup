@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Store script directory name full path to use later
+script_dir_path=$(cd 'dirname $0' > && pwd -P)
+
 # ----------------------------------------------------------------------------
 #####
 # Check which user is running the script
@@ -742,7 +745,6 @@ gsettings set org.gtk.gtk4.Settings.FileChooser show-hidden true
 gsettings set org.gtk.gtk4.Settings.FileChooser type-format 'mime'
 gsettings set org.gnome.TextEditor highlight-current-line true
 gsettings set org.gnome.TextEditor indent-style 'space'
-gsettings set org.gnome.TextEditor show-grid true
 gsettings set org.gnome.TextEditor show-line-numbers true
 gsettings set org.gnome.TextEditor show-map true
 gsettings set org.gnome.TextEditor show-right-margin true
@@ -806,6 +808,15 @@ unzip -q /tmp/Meslo.zip -d /usr/share/fonts/meslo
 fc-cache -f
 rm  /tmp/Meslo.zip
 
+## Configure Gnome Terminal to use Nerd Fonts and other usability tweaks
+sudo -E -u $user_selected bash <<-EOC
+gsettings set "org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/" default-size-columns 160
+gsettings set "org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/" default-size-rows 96
+gsettings set "org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/" font 'MesloLGS Nerd Font Mono 11'
+gsettings set "org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/" use-system-font false
+gsettings set "org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/" visible-name 'Oh-My-Zsh-P10k-Default'
+EOC
+
 ## Install Powelevel10k
 git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-/usr/share/oh-my-zsh/custom}/themes/powerlevel10k
 
@@ -839,7 +850,6 @@ usermod --shell $(which zsh) $user_selected
 chown -R $user_selected:$user_selected $home_selected/.zshrc
 
 # Copy Powerlevel10k config file to both root and user home directories
-script_dir_path="$(dirname $0)"
 if [ -f "$script_dir_path/p10k.zsh" ] 
 then
     cp $script_dir_path/p10k.zsh /root/.p10k.zsh
