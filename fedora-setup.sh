@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Store script directory name full path to use later
-script_dir_path=$(cd 'dirname $0' && pwd -P)
+script_dir_path=$(cd `dirname $0` && pwd -P)
+echo "Setup script directory path: $script_dir_path"
 
 # ----------------------------------------------------------------------------
 #####
@@ -352,6 +353,7 @@ cockpit-storaged `# Manage your system’s storage. Supports local partitions, e
 code `# Visual Studio Code application` \
 darktable `# Easy RAW Editor` \
 dconf-editor `# Configuration editor for dconf` \
+easyeffects `# Audio effects for PipeWire applications` \
 filezilla `# S/FTP Access` \
 flameshot `# Powerful and simple to use screenshot software` \
 gimp `# The Image Editing Powerhouse - and its plugins` \
@@ -375,8 +377,11 @@ gimp-wavelet-denoise-plugin \
 glances `# Nice CLI Monitor for your System` \
 gmic-gimp \
 google-chrome-stable `# Google Chrome` \
+gparted `# Gnome Partition Editor` \
+gwe `# System utility designed to provide information of NVIDIA card` \
 inkscape `# Working with .svg files` \
 krita `# Painting done right` \
+libreoffice-draw `# LibreOffice Drawing Application` \
 lm_sensors `# Hardware monitoring tools` \
 lm_sensors-sensord `# Daemon that periodically logs sensor readings` \
 plexmediaserver `# Plex organizes all of your personal media so you can easily access and enjoy it.` \
@@ -442,7 +447,8 @@ flatpak install \
 flathub `# from flathub repo` \
 org.gnome.FontManager `# Powerful markdown editor for the GNOME desktop.` \
 com.github.fabiocolacio.marker `# A simple font management application for Gtk+ Desktop Environments` \
-flathub com.jgraph.drawio.desktop
+com.jgraph.drawio.desktop `# draw.io is the most flexible and privacy-focused of any production grade diagramming tool.` \
+org.kde.okular `# One of the best PDF readers for Linux.`
 EOF
 
 echo ""
