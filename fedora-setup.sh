@@ -480,30 +480,6 @@ echo ""
 echo "FEDORA-SETUP: Installing and configuring Snap finished."
 echo ""
 
-# ----------------------------------------------------------------------------
-#####
-# Install and configure nvidia and CUDA drivers
-#####
-
-if [ -n "$(lspci | grep -E "NVIDIA|nvidia|Nvidia|NVidia")" ]
-then
-        echo ""
-        echo "FEDORA-SETUP: Installing NVidia drivers."
-        echo ""
-
-        dnf install \
-        -y `# Do not ask for confirmation` \
-        nvidia-driver `# Basic NVidia drivers for amd64` \
-        nvidia-driver-libs.i686 `#B asic NVidia drivers for x86` \
-        nvidia-driver-cuda `# Basic CUDA drivers for amd64` \
-        nvidia-settings `# NVidia control panel` \
-        cuda-devel `# CUDA development packages` \
-        cuda-cudnn `# CUDA development packages for deep neural networks`
-
-        echo ""
-        echo "FEDORA-SETUP: Installing NVidia drivers finished."
-        echo ""
-fi
 
 # ----------------------------------------------------------------------------
 #####
@@ -710,65 +686,92 @@ gsettings set org.freedesktop.Tracker3.Miner.Files index-on-battery-first-time f
 gsettings set org.freedesktop.Tracker3.Miner.Files throttle 15
 EOC
 
-# Nautilus (File Manager) Usability
+# Nautilus (File Manager) configuration
 sudo -E -u $user_selected bash <<EOC
+gsettings set org.gnome.nautilus.preferences default-folder-viewer 'list-view'
+gsettings set org.gnome.nautilus.window-state sidebar-width 250
+gsettings set org.gnome.nautilus.window-state maximized true
 gsettings set org.gnome.nautilus.icon-view default-zoom-level 'standard'
 gsettings set org.gnome.nautilus.list-view use-tree-view true
-gsettings set org.gnome.nautilus.list-view default-column-order "['name','size','type','mime_type','owner','group','permissions','where','date_modified','date_created','date_modified_with_time','date_accessed','recency','starred']"
-gsettings set org.gnome.nautilus.list-view default-visible-columns "['name','size','type','mime_type','date_modified','date_created','starred']"
+gsettings set org.gnome.nautilus.list-view default-column-order "['name','size','type','detailed_type','owner','group','permissions','where','date_modified','date_created','date_modified_with_time','date_accessed','recency','starred']"
+gsettings set org.gnome.nautilus.list-view default-visible-columns "['name','size','type','detailed_type','date_modified','date_created','starred']"
+EOC
+
+# File Chooser configuration
+sudo -E -u $user_selected bash <<EOC
 gsettings set org.gtk.Settings.FileChooser sort-directories-first true
 gsettings set org.gtk.Settings.FileChooser date-format 'with-time'
 gsettings set org.gtk.Settings.FileChooser show-hidden true
 gsettings set org.gtk.Settings.FileChooser type-format 'mime'
 EOC
 
-# Usability Improvements
+# Usability Improvements in GNOME Desktop Interface (buttons, periphericals, etc)
 sudo -E -u $user_selected bash <<EOC
 gsettings set org.gnome.desktop.interface clock-show-weekday true
 gsettings set org.gnome.desktop.interface clock-show-seconds true
-gsettings set org.gnome.desktop.peripherals.mouse accel-profile 'adaptive'
+gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
+gsettings set org.gnome.desktop.interface icon-theme 'Papirus-Dark'
+gsettings set org.gnome.desktop.interface font-antialiasing 'rgba'
 gsettings set org.gnome.desktop.sound allow-volume-above-100-percent true
 gsettings set org.gnome.desktop.calendar show-weekdate true
 gsettings set org.gnome.desktop.wm.preferences resize-with-right-button true
 gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close'
-gsettings set org.gnome.shell.overrides workspaces-only-on-primary false
-gsettings set org.gnome.system.locale region 'pt_BR.UTF-8'
+gsettings set org.gnome.desktop.peripherals.mouse accel-profile 'adaptive'
+gsettings set org.gnome.desktop.peripherals.keyboard numlock-state true
+gsettings set org.gnome.desktop.peripherals.touchpad tap-to-click true
+gsettings set org.gnome.desktop.peripherals.touchpad two-finger-scrolling-enabled true
 gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'br'), ('xkb', 'us+intl')]"
-gsettings set org.gnome.settings-daemon.plugins.media-keys home "['<Super>e']"
 gsettings set org.gnome.Weather locations "[<(uint32 2, <('São Paulo', 'SBMT', true, [(-0.41044326824509736, -0.8139052020289248)], [(-0.41073414481823473, -0.81361432545578749)])>)>]"
 gsettings set org.gnome.GWeather temperature-unit 'centigrade'
 EOC
 
-# Apps and UX configs for different Gnome Shell versions
+# Usability Improvements in GNOME Desktop Interface (behaviours, locale, hotkeys)
+sudo -E -u $user_selected bash <<EOC
+gsettings set org.gnome.shell.overrides workspaces-only-on-primary false
+gsettings set org.gnome.system.locale region 'pt_BR.UTF-8'
+gsettings set org.gnome.settings-daemon.plugins.media-keys home "['<Super>e']"
+gsettings set org.gnome.mutter center-new-windows true
+gsettings set org.gnome.mutter workspaces-only-on-primary true
+org.gnome.tweaks show-extensions-notice false
+EOC
+
+# Apps and UX configs for different Gnome Shell version equal or superior to 42
 if [ "$(gnome-shell --version | cut -d" " -f3 | cut -d. -f1)" -ge 42 ]
 then
-    # Configurations for GNOME 42 and superior
+    # Dark mode preference mode for compliant apps and extensions
     sudo -E -u $user_selected bash <<-EOC
 gsettings set org.gnome.desktop.interface color-scheme prefer-dark
+EOC
+
+    # File Chooser configuration (GTK4+)
+    sudo -E -u $user_selected bash <<-EOC
 gsettings set org.gtk.gtk4.Settings.FileChooser sort-directories-first true
 gsettings set org.gtk.gtk4.Settings.FileChooser date-format 'with-time'
 gsettings set org.gtk.gtk4.Settings.FileChooser show-hidden true
 gsettings set org.gtk.gtk4.Settings.FileChooser type-format 'mime'
+EOC
+
+    # Text Editor configuration (gedit substitute in GNOME 42+)
+    sudo -E -u $user_selected bash <<-EOC
 gsettings set org.gnome.TextEditor highlight-current-line true
 gsettings set org.gnome.TextEditor indent-style 'space'
 gsettings set org.gnome.TextEditor show-line-numbers true
 gsettings set org.gnome.TextEditor show-map true
 gsettings set org.gnome.TextEditor show-right-margin true
 gsettings set org.gnome.TextEditor tab-width 4
+EOC
+
+    # Weather widget configuration (GTK4+)
+    sudo -E -u $user_selected bash <<-EOC
 gsettings set org.gnome.GWeather4 temperature-unit 'centigrade'
 EOC
-else
-    # Theme configuration
-    sudo -E -u $user_selected bash <<-EOC
-gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
-gsettings set org.gnome.desktop.interface icon-theme 'breeze-dark'
-EOC
+
 fi
 
-# # GNOME Shell Extensions Activation
-# sudo -E -u $user_selected bash <<EOF
-# gsettings set org.gnome.shell enabled-extensions "['background-logo@fedorahosted.org','sound-output-device-chooser@kgshank.net','mediacontrols@cliffniff.github.com','caffeine@patapon.info','appindicatorsupport@rgcjonas.gmail.com']"
-# EOF
+# GNOME Shell Default Extensions Activation
+sudo -E -u $user_selected bash <<EOC
+gsettings set org.gnome.shell enabled-extensions "['background-logo@fedorahosted.org', 'appindicatorsupport@rgcjonas.gmail.com', 'user-theme@gnome-shell-extensions.gcampax.github.com']"
+EOC
 
 echo ""
 echo "FEDORA-SETUP: Configuring dconf settings finished."
@@ -814,15 +817,6 @@ unzip -q /tmp/Meslo.zip -d /usr/share/fonts/meslo
 fc-cache -f
 rm  /tmp/Meslo.zip
 
-## Configure Gnome Terminal to use Nerd Fonts and other usability tweaks
-sudo -E -u $user_selected bash <<-EOC
-gsettings set "org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/" default-size-columns 160
-gsettings set "org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/" default-size-rows 96
-gsettings set "org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/" font 'MesloLGS Nerd Font Mono 11'
-gsettings set "org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/" use-system-font false
-gsettings set "org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/" visible-name 'Oh-My-Zsh-P10k-Default'
-EOC
-
 ## Install Powelevel10k
 git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-/usr/share/oh-my-zsh/custom}/themes/powerlevel10k
 
@@ -860,8 +854,46 @@ if [ -f "$script_dir_path/p10k.zsh" ]
 then
     cp $script_dir_path/p10k.zsh /root/.p10k.zsh
     cp $script_dir_path/p10k.zsh $home_selected/.p10k.zsh
-    chwon -R $user_selected:$user_selected $home_selected $home_selected/.p10k.zsh
+    chwon -R $user_selected:$user_selected $home_selected/.p10k.zsh
 fi 
+
+# ----------------------------------------------------------------------------
+#####
+# Install and configure nvidia and CUDA drivers
+#####
+
+if [ -n "$(lspci | grep -E "NVIDIA|nvidia|Nvidia|NVidia")" ]
+then
+        echo ""
+        echo "FEDORA-SETUP: Installing NVidia drivers."
+        echo ""
+
+        dnf install \
+        -y `# Do not ask for confirmation` \
+        nvidia-driver `# Basic NVidia drivers for amd64` \
+        nvidia-driver-libs.i686 `#B asic NVidia drivers for x86` \
+        nvidia-driver-cuda `# Basic CUDA drivers for amd64` \
+        nvidia-settings `# NVidia control panel` \
+        cuda-devel `# CUDA development packages` \
+        cuda-cudnn `# CUDA development packages for deep neural networks`
+
+        echo ""
+        echo "FEDORA-SETUP: Installing NVidia drivers finished."
+        echo ""
+fi
+
+# ----------------------------------------------------------------------------
+#####
+# Configure Gnome Terminal to work with Oh-my-zsh and Powerlevel10k
+#####
+
+sudo -E -u $user_selected bash <<-EOC
+gsettings set "org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/" default-size-columns 160
+gsettings set "org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/" default-size-rows 96
+gsettings set "org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/" font 'MesloLGS Nerd Font Mono 11'
+gsettings set "org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/" use-system-font false
+gsettings set "org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/" visible-name 'Oh-My-Zsh-P10k-Default'
+EOC
 
 # ----------------------------------------------------------------------------
 #####
@@ -878,3 +910,5 @@ echo "FEDORA-SETUP: Please, restart."
 echo ""
 
 Log_Close
+
+chwon -R $user_selected:$user_selected $LOGDIR/$JobClass
