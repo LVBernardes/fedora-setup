@@ -312,6 +312,7 @@ pv `# A tool for monitoring the progress of data through a pipeline ( | )` \
 python3 `# Python core library` \
 python3-devel `# Python Development Gear` \
 python3-neovim `# Python Neovim Libs` \
+snap `# A transactional software package manager. Analogous to Flatpak.` \
 solaar `# Device manager for a wide range of Logitech devices` \
 squashfuse `# FUSE filesystem to mount squashfs archives` \
 texlive-scheme-full `# Texlive complete package` \
@@ -457,15 +458,12 @@ echo ""
 
 # ----------------------------------------------------------------------------
 #####
-# Configure and use Snap
+# Configure and use Snap and Snap Store Applications
 #####
 
 echo ""
 echo "FEDORA-SETUP: Installing and configuring Snap."
 echo ""
-
-# Install snapd
-dnf install -y snapd
 
 # Create symlink to ensure proper functioning
 ln -s /var/lib/snapd/snap /snap
@@ -854,7 +852,7 @@ if [ -f "$script_dir_path/p10k.zsh" ]
 then
     cp $script_dir_path/p10k.zsh /root/.p10k.zsh
     cp $script_dir_path/p10k.zsh $home_selected/.p10k.zsh
-    chwon -R $user_selected:$user_selected $home_selected/.p10k.zsh
+    chown -R $user_selected:$user_selected $home_selected/.p10k.zsh
 fi 
 
 # ----------------------------------------------------------------------------
@@ -911,4 +909,4 @@ echo ""
 
 Log_Close
 
-chwon -R $user_selected:$user_selected $LOGDIR/$JobClass
+chown -R $user_selected:$user_selected $LOGDIR/$JobClass
