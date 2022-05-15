@@ -313,7 +313,7 @@ pv `# A tool for monitoring the progress of data through a pipeline ( | )` \
 python3 `# Python core library` \
 python3-devel `# Python Development Gear` \
 python3-neovim `# Python Neovim Libs` \
-snap `# A transactional software package manager. Analogous to Flatpak.` \
+snapd `# A transactional software package manager. Analogous to Flatpak.` \
 solaar `# Device manager for a wide range of Logitech devices` \
 squashfuse `# FUSE filesystem to mount squashfs archives` \
 texlive-scheme-full `# Texlive complete package` \
