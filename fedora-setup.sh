@@ -297,6 +297,7 @@ gvfs-smb `# gnome<>samba` \
 htop `# Interactive CLI process monitor` \
 httpie `# A Curl-like tool for humans` \
 jq `# Command-line JSON processor` \
+julia `# High-level, high-performance dynamic language for technical computing` \
 kernel-devel `# Development package for building kernel modules to match the kernel` \
 kernel-modules `# kernel modules to match the core kernel` \
 meld `# Visual diff and merge tool` \
@@ -316,6 +317,8 @@ snap `# A transactional software package manager. Analogous to Flatpak.` \
 solaar `# Device manager for a wide range of Logitech devices` \
 squashfuse `# FUSE filesystem to mount squashfs archives` \
 texlive-scheme-full `# Texlive complete package` \
+tlp `# Optimize laptop battery life` \
+tlp-rdw `# Radio device wizard for TLP` \
 tuned `# Tuned can optimize your performance according to metrics. tuned-adm profile powersave can help you on laptops, alot` \
 tuned-gtk `# GTK GUI for tuned` \
 tuned-switcher `# Simple utility to manipulate the Tuned service` \
@@ -410,6 +413,10 @@ echo ""
 dnf install \
 -y `# Do not ask for confirmation` \
 adobe-source-code-pro-fonts `# The most beautiful monospace font around` \
+open-sans-fonts `# One of the best multipurpuse sans-serif font OpenType compliant` \
+'mozilla-fira-*' `# A nice font family` \
+'google-roboto*' \
+fira-code-fonts \
 arc-theme `# Flat theme with transparent elements` \
 beesu `# Graphical wrapper for su` \
 file-roller-nautilus `# More Archives supported in nautilus` \
@@ -418,7 +425,6 @@ gnome-shell-extension-user-theme `# Enables theming the gnome shell` \
 gnome-terminal-nautilus `# GNOME Terminal extension for Nautilus` \
 gnome-tweaks `# Your central place to make gnome like you want` \
 gtkhash-nautilus `# To get a file hash via GUI` \
-'mozilla-fira-*' `# A nice font family` \
 nautilus-extensions `# What it says on the tin` \
 nautilus-image-converter `# Image converter option in context menu` \
 nautilus-python `# Python bindings for Nautilus` \
@@ -710,10 +716,14 @@ gsettings set org.gnome.desktop.interface clock-show-seconds true
 gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
 gsettings set org.gnome.desktop.interface icon-theme 'Papirus-Dark'
 gsettings set org.gnome.desktop.interface font-antialiasing 'rgba'
+gsettings set org.gnome.desktop.interface font-name 'Noto Sans 11'
+gsettings set org.gnome.desktop.interface document-font-name 'Noto Sans Medium 11
+gsettings set org.gnome.desktop.interface monospace-font-name 'Noto Sans Mono 10'
 gsettings set org.gnome.desktop.sound allow-volume-above-100-percent true
 gsettings set org.gnome.desktop.calendar show-weekdate true
 gsettings set org.gnome.desktop.wm.preferences resize-with-right-button true
 gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close'
+gsettings set org.gnome.desktop.wm.preferences titlebar-font 'Noto Sans Bold 11'
 gsettings set org.gnome.desktop.peripherals.mouse accel-profile 'adaptive'
 gsettings set org.gnome.desktop.peripherals.keyboard numlock-state true
 gsettings set org.gnome.desktop.peripherals.touchpad tap-to-click true
@@ -721,6 +731,7 @@ gsettings set org.gnome.desktop.peripherals.touchpad two-finger-scrolling-enable
 gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'br'), ('xkb', 'us+intl')]"
 gsettings set org.gnome.Weather locations "[<(uint32 2, <('São Paulo', 'SBMT', true, [(-0.41044326824509736, -0.8139052020289248)], [(-0.41073414481823473, -0.81361432545578749)])>)>]"
 gsettings set org.gnome.GWeather temperature-unit 'centigrade'
+
 EOC
 
 # Usability Improvements in GNOME Desktop Interface (behaviours, locale, hotkeys)
@@ -891,6 +902,7 @@ gsettings set "org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/prof
 gsettings set "org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/" font 'MesloLGS Nerd Font Mono 11'
 gsettings set "org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/" use-system-font false
 gsettings set "org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/" visible-name 'Oh-My-Zsh-P10k-Default'
+gsettings set org.gnome.desktop.interface monospace-font-name 'MesloLGS Nerd Font Mono 10'
 EOC
 
 # ----------------------------------------------------------------------------
