@@ -717,7 +717,7 @@ gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
 gsettings set org.gnome.desktop.interface icon-theme 'Papirus-Dark'
 gsettings set org.gnome.desktop.interface font-antialiasing 'rgba'
 gsettings set org.gnome.desktop.interface font-name 'Noto Sans 11'
-gsettings set org.gnome.desktop.interface document-font-name 'Noto Sans Medium 11
+gsettings set org.gnome.desktop.interface document-font-name 'Noto Sans Medium 11'
 gsettings set org.gnome.desktop.interface monospace-font-name 'Noto Sans Mono 10'
 gsettings set org.gnome.desktop.sound allow-volume-above-100-percent true
 gsettings set org.gnome.desktop.calendar show-weekdate true
@@ -741,7 +741,7 @@ gsettings set org.gnome.system.locale region 'pt_BR.UTF-8'
 gsettings set org.gnome.settings-daemon.plugins.media-keys home "['<Super>e']"
 gsettings set org.gnome.mutter center-new-windows true
 gsettings set org.gnome.mutter workspaces-only-on-primary true
-org.gnome.tweaks show-extensions-notice false
+gsettings set org.gnome.tweaks show-extensions-notice false
 EOC
 
 # Apps and UX configs for different Gnome Shell version equal or superior to 42
@@ -879,17 +879,45 @@ then
 
         dnf install \
         -y `# Do not ask for confirmation` \
-        nvidia-driver `# Basic NVidia drivers for amd64` \
-        nvidia-driver-libs.i686 `#B asic NVidia drivers for x86` \
-        nvidia-driver-cuda `# Basic CUDA drivers for amd64` \
-        nvidia-settings `# NVidia control panel` \
+        nvidia-driver-510.68.02-1.fc36.x86_64 `# Basic NVidia drivers for amd64` \
+        nvidia-driver-libs-510.68.02-1.fc36.i686 `#B asic NVidia drivers for x86` \
+        nvidia-driver-cuda-510.68.02-1.fc36.x86_64 `# Basic CUDA drivers for amd64` \
+        nvidia-settings-510.68.02-1.fc36.x86_64 `# NVidia control panel` \
         cuda-devel `# CUDA development packages` \
         cuda-cudnn `# CUDA development packages for deep neural networks`
+	
+	dnf config-manager --set-disabled fedora-nvidia
 
         echo ""
         echo "FEDORA-SETUP: Installing NVidia drivers finished."
         echo ""
 fi
+
+# ----------------------------------------------------------------------------
+#####
+# Configure and use Snap and Snap Store Applications
+#####
+
+echo ""
+echo "FEDORA-SETUP: Installing and configuring Snap."
+echo ""
+
+# Create symlink to ensure proper functioning
+ln -s /var/lib/snapd/snap /snap
+
+# Updating cache
+snap refresh
+
+# Install Snap Store
+snap install snap-store
+
+# Install Spotify
+snap install spotify
+
+echo ""
+echo "FEDORA-SETUP: Installing and configuring Snap finished."
+echo ""
+
 
 # ----------------------------------------------------------------------------
 #####
