@@ -613,6 +613,34 @@ echo ""
 
 # ----------------------------------------------------------------------------
 #####
+# Installing LanguateTool
+#####
+
+echo ""
+echo "FEDORA-SETUP: Installing LanguateTool Server."
+echo ""
+
+# Download tarball
+wget -O "languagetool.zip" "https://languagetool.org/download/LanguageTool-stable.zip" -o "/dev/null"
+
+# create an appropriate location
+mkdir .bin/languagetool
+
+# Extract
+unzip -q languagetool.zip -d $home_selected/.bin/languagetool
+
+# Change ownership to specified user
+chown -R $user_selected:$user_selected $home_selected/.bin/languagetool
+
+# Clean root user folder from the downloaded tarball
+rm -f languagetool.zip
+
+echo ""
+echo "FEDORA-SETUP: LanguateTool Server successfully installed."
+echo ""
+
+# ----------------------------------------------------------------------------
+#####
 # AppImage Integrator
 #####
 
@@ -665,7 +693,7 @@ wget -q -O "$home_selected/.bin/appimagefiles/obisidian.AppImage" -o "/dev/null"
 chown -R $user_selected:$user_selected $home_selected/.bin/appimagefiles/obisidian.AppImage
 
 # Download and install JetBrains ToolBox
-wget -q -O "/tmp/jetbrains-toolbox.tar.bz2" -o "/dev/null" "https://download.jetbrains.com/toolbox/jetbrains-toolbox-1.23.11849.tar.gz"
+wget -q -O "/tmp/jetbrains-toolbox.tar.bz2" -o "/dev/null" "https://download.jetbrains.com/toolbox/jetbrains-toolbox-1.24.11947.tar.gz"
 tar -xf /tmp/jetbrains-toolbox.tar.bz2 --strip-components=1 -C $home_selected/.bin/appimagefiles/
 chown -R $user_selected:$user_selected $home_selected/.bin/appimagefiles/jetbrains-toolbox
 rm /tmp/jetbrains-toolbox.tar.bz2
