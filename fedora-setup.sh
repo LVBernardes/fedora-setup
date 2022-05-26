@@ -431,6 +431,10 @@ nautilus-python `# Python bindings for Nautilus` \
 nautilus-search-tool `# Searh option in context menu` \
 papirus-icon-theme `# Free and open source SVG icon theme based on Paper Icon Set`
 
+
+# Installing JetBrains Mono NerdFont
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/JetBrains/JetBrainsMono/master/install_manual.sh)"
+
 echo ""
 echo "FEDORA-SETUP: Installing extension, fonts and themes finished."
 echo ""
