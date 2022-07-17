@@ -429,7 +429,8 @@ nautilus-extensions `# What it says on the tin` \
 nautilus-image-converter `# Image converter option in context menu` \
 nautilus-python `# Python bindings for Nautilus` \
 nautilus-search-tool `# Searh option in context menu` \
-papirus-icon-theme `# Free and open source SVG icon theme based on Paper Icon Set`
+papirus-icon-theme `# Free and open source SVG icon theme based on Paper Icon Set` \
+flat-remix-theme `# Pretty simple theme inspired on material design`
 
 
 # Installing JetBrains Mono NerdFont
@@ -459,7 +460,9 @@ flathub `# from flathub repo` \
 org.gnome.FontManager `# Powerful markdown editor for the GNOME desktop.` \
 com.github.fabiocolacio.marker `# A simple font management application for Gtk+ Desktop Environments` \
 com.jgraph.drawio.desktop `# draw.io is the most flexible and privacy-focused of any production grade diagramming tool.` \
-org.kde.okular `# One of the best PDF readers for Linux.`
+org.kde.okular `# One of the best PDF readers for Linux.` \
+com.spotify.Client `# Spotify client.`
+
 EOF
 
 echo ""
@@ -480,9 +483,6 @@ ln -s /var/lib/snapd/snap /snap
 
 # Install Snap Store
 snap install snap-store
-
-# Install Spotify
-snap install spotify
 
 echo ""
 echo "FEDORA-SETUP: Installing and configuring Snap finished."
@@ -572,48 +572,6 @@ echo ""
 echo "FEDORA-SETUP: Zotero successfully installed."
 echo ""
 
-# ----------------------------------------------------------------------------
-#####
-# Installing Postman
-#####
-
-echo ""
-echo "FEDORA-SETUP: Installing Postman."
-echo ""
-
-# Download tarball
-wget -O "postman.tar.bz2" "https://dl.pstmn.io/download/latest/linux64" -o "/dev/null"
-
-# Extract with diffente owner from archiving
-tar -xf postman.tar.bz2 --no-same-owner 
-
-# Change extracted folder name
-mv Postman*/ postman/
-
-# Move folder
-mv postman/ /opt/
-
-# Change ownership to specified user
-chown -R $user_selected:$user_selected /opt/postman/
-
-# Clean root user folder from the downloaded tarball
-rm -f postman.tar.bz2
-
-# Create desktop shortcut
-tee $home_selected/.local/share/applications/Postman.desktop > /dev/null <<EOF
-[Desktop Entry]
-Encoding=UTF-8
-Name=Postman
-Exec=/opt/postman/app/Postman %U
-Icon=/opt/postman/app/resources/app/assets/icon.png
-Terminal=false
-Type=Application
-Categories=Development;
-EOF
-
-echo ""
-echo "FEDORA-SETUP: Postman successfully installed."
-echo ""
 
 # ----------------------------------------------------------------------------
 #####
@@ -702,6 +660,12 @@ tar -xf /tmp/jetbrains-toolbox.tar.bz2 --strip-components=1 -C $home_selected/.b
 chown -R $user_selected:$user_selected $home_selected/.bin/appimagefiles/jetbrains-toolbox
 rm /tmp/jetbrains-toolbox.tar.bz2
 
+# Download and install Insomnia Core
+wget -q -O "$home_selected/.bin/appimagefiles/insomnia.AppImage" -o "/dev/null" \
+https://github.com$(curl -Ls https://updates.insomnia.rest/downloads/release/latest\?app\=com.insomnia.app\&source\=website | grep -Eo 'href="[^\"]+"' | grep -Eo '\/Kong\/insomnia\/releases\/download\/\S*\/Insomnia.Core-[0-9]*\.[0-9]*\.[0-9]*\.AppImage')
+chown -R $user_selected:$user_selected $home_selected/.bin/appimagefiles/insomnia.AppImage
+
+
 echo ""
 echo "FEDORA-SETUP: Installing and configuring AppImage applications finished."
 echo ""
@@ -743,9 +707,10 @@ EOC
 
 # Usability Improvements in GNOME Desktop Interface (buttons, periphericals, etc)
 sudo -E -u $user_selected bash <<EOC
+gsettings set org.gnome.shell.extensions.user-theme name 'Flat-Remix-Blue-Dark-fullPanel'
 gsettings set org.gnome.desktop.interface clock-show-weekday true
 gsettings set org.gnome.desktop.interface clock-show-seconds true
-gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
+gsettings set org.gnome.desktop.interface gtk-theme 'Flat-Remix-GTK-Blue-Dark-Solid'
 gsettings set org.gnome.desktop.interface icon-theme 'Papirus-Dark'
 gsettings set org.gnome.desktop.interface font-antialiasing 'rgba'
 gsettings set org.gnome.desktop.interface font-name 'Noto Sans 11'
@@ -911,10 +876,10 @@ then
 
         dnf install \
         -y `# Do not ask for confirmation` \
-        nvidia-driver-510.68.02-1.fc36.x86_64 `# Basic NVidia drivers for amd64` \
-        nvidia-driver-libs-510.68.02-1.fc36.i686 `#B asic NVidia drivers for x86` \
-        nvidia-driver-cuda-510.68.02-1.fc36.x86_64 `# Basic CUDA drivers for amd64` \
-        nvidia-settings-510.68.02-1.fc36.x86_64 `# NVidia control panel` \
+        nvidia-driver `# Basic NVidia drivers for amd64` \
+        nvidia-driver-libs.i686 `#B asic NVidia drivers for x86` \
+        nvidia-driver-cuda `# Basic CUDA drivers for amd64` \
+        nvidia-settings `# NVidia control panel` \
         cuda-devel `# CUDA development packages` \
         cuda-cudnn `# CUDA development packages for deep neural networks`
 	
@@ -942,9 +907,6 @@ snap refresh
 
 # Install Snap Store
 snap install snap-store
-
-# Install Spotify
-snap install spotify
 
 echo ""
 echo "FEDORA-SETUP: Installing and configuring Snap finished."
