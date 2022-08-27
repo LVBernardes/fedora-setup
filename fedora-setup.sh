@@ -298,6 +298,7 @@ htop `# Interactive CLI process monitor` \
 httpie `# A Curl-like tool for humans` \
 jq `# Command-line JSON processor` \
 julia `# High-level, high-performance dynamic language for technical computing` \
+lsd `# Ls command with a lot of pretty colors and some other stuff` \
 kernel-devel `# Development package for building kernel modules to match the kernel` \
 kernel-modules `# kernel modules to match the core kernel` \
 meld `# Visual diff and merge tool` \
@@ -785,7 +786,7 @@ echo ""
 
 # ----------------------------------------------------------------------------
 #####
-# Oh-My-Zsh and Powerlevel10k configuration
+# Oh-My-Zsh, Powerlevel10k and LSD configuration
 #####
 
 echo ""
@@ -842,6 +843,19 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
     source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"\
 fi\
 ' /usr/share/oh-my-zsh/zshrc
+
+# Configure LSD alias over 'ls'
+tee -a /usr/share/oh-my-zsh/zshrc > /dev/null << 'EOI'
+
+# Configuration for LSD alias over LS
+alias ls='lsd'
+alias l='ls -l'
+alias la='ls -a'
+alias lla='ls -la'
+alias lt='ls --tree --depth'
+alias lta='ls -la --tree --depth' 
+
+EOI
 
 # Create Symbolic Links to /etc/skel
 sudo ln /usr/share/oh-my-zsh/zshrc /etc/skel/.zshrc
