@@ -298,6 +298,7 @@ htop `# Interactive CLI process monitor` \
 httpie `# A Curl-like tool for humans` \
 jq `# Command-line JSON processor` \
 julia `# High-level, high-performance dynamic language for technical computing` \
+libappindicator `# Application indicators library` \
 lsd `# Ls command with a lot of pretty colors and some other stuff` \
 kernel-devel `# Development package for building kernel modules to match the kernel` \
 kernel-modules `# kernel modules to match the core kernel` \
@@ -394,7 +395,6 @@ qbittorrent `# A bittorrent Client` \
 rawtherapee `# Professional RAW Editor` \
 texstudio `# A feature-rich editor for LaTeX documents` \
 thunderbird `# Mozilla Thunderbird mail/newsgroup client` \
-ulauncher `# Linux Application Launcher` \
 vlc `# The cross-platform open-source multimedia framework, player and server`
 
 
@@ -411,14 +411,32 @@ echo ""
 echo "FEDORA-SETUP: Installing extension, fonts and themes."
 echo ""
 
+# Fonts
 dnf install \
 -y `# Do not ask for confirmation` \
 adobe-source-code-pro-fonts `# The most beautiful monospace font around` \
 open-sans-fonts `# One of the best multipurpuse sans-serif font OpenType compliant` \
 'mozilla-fira-*' `# A nice font family` \
 'google-roboto*' \
-fira-code-fonts \
-arc-theme `# Flat theme with transparent elements` \
+fira-code-fonts
+
+## Install recommended fonts (Nerd Fonts) for Powerlevel10k
+mkdir -p /usr/share/fonts/meslo
+wget -q https://github.com/ryanoasis/nerd-fonts/releases/download/v2.2.2/Meslo.zip -O /tmp/Meslo.zip
+unzip -q /tmp/Meslo.zip -d /usr/share/fonts/meslo
+fc-cache -f
+rm  /tmp/Meslo.zip
+
+## Install patch (Nerd Fonts) JetBrains Mono
+mkdir -p /usr/share/fonts/jetbrains-mono-fonts-all
+wget -q https://github.com/ryanoasis/nerd-fonts/releases/download/v2.2.2/JetBrainsMono.zip -O /tmp/JetBrainsMono.zip
+unzip -q /tmp/JetBrainsMono.zip -d /usr/share/fonts/jetbrains-mono-fonts-all
+fc-cache -f
+rm  /tmp/JetBrainsMono.zip
+
+# Extensions
+dnf install \
+-y `# Do not ask for confirmation` \
 beesu `# Graphical wrapper for su` \
 file-roller-nautilus `# More Archives supported in nautilus` \
 gnome-extensions-app `# Manage GNOME Shell extensions` \
@@ -429,7 +447,12 @@ gtkhash-nautilus `# To get a file hash via GUI` \
 nautilus-extensions `# What it says on the tin` \
 nautilus-image-converter `# Image converter option in context menu` \
 nautilus-python `# Python bindings for Nautilus` \
-nautilus-search-tool `# Searh option in context menu` \
+nautilus-search-tool `# Searh option in context menu`
+
+# Themes
+dnf install \
+-y `# Do not ask for confirmation` \
+arc-theme `# Flat theme with transparent elements` \
 papirus-icon-theme `# Free and open source SVG icon theme based on Paper Icon Set` \
 flat-remix-theme `# Pretty simple theme inspired on material design`
 
@@ -576,6 +599,35 @@ echo ""
 
 # ----------------------------------------------------------------------------
 #####
+# Installing TeamViewer
+#####
+
+echo ""
+echo "FEDORA-SETUP: Installing TeamViewer."
+echo ""
+
+# Download GPG key
+wget "https://download.teamviewer.com/download/linux/signature/TeamViewer2017.asc" -o "/dev/null"
+
+# Add GPG key
+rpm --import TeamViewer2017.asc -y
+
+# Download client
+wget "https://download.teamviewer.com/download/linux/teamviewer.x86_64.rpm" -o "/dev/null"
+
+# Install client
+dnf install ./teamviewer.x86_64.rpm -y
+
+# Remove downloaded files
+rm -f TeamViewer2017.asc teamviewer.x86_64.rpm
+
+echo ""
+echo "FEDORA-SETUP: Teamviewer successfully installed."
+echo ""
+
+
+# ----------------------------------------------------------------------------
+#####
 # Installing LanguateTool
 #####
 
@@ -656,7 +708,7 @@ wget -q -O "$home_selected/.bin/appimagefiles/obisidian.AppImage" -o "/dev/null"
 chown -R $user_selected:$user_selected $home_selected/.bin/appimagefiles/obisidian.AppImage
 
 # Download and install JetBrains ToolBox
-wget -q -O "/tmp/jetbrains-toolbox.tar.bz2" -o "/dev/null" "https://download.jetbrains.com/toolbox/jetbrains-toolbox-1.24.11947.tar.gz"
+wget -q -O "/tmp/jetbrains-toolbox.tar.bz2" -o "/dev/null" "https://download.jetbrains.com/toolbox/jetbrains-toolbox-1.26.2.13244.tar.gz"
 tar -xf /tmp/jetbrains-toolbox.tar.bz2 --strip-components=1 -C $home_selected/.bin/appimagefiles/
 chown -R $user_selected:$user_selected $home_selected/.bin/appimagefiles/jetbrains-toolbox
 rm /tmp/jetbrains-toolbox.tar.bz2
@@ -726,7 +778,7 @@ gsettings set org.gnome.desktop.peripherals.mouse accel-profile 'adaptive'
 gsettings set org.gnome.desktop.peripherals.keyboard numlock-state true
 gsettings set org.gnome.desktop.peripherals.touchpad tap-to-click true
 gsettings set org.gnome.desktop.peripherals.touchpad two-finger-scrolling-enabled true
-gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'br'), ('xkb', 'us+intl')]"
+gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'us+intl'), ('xkb', 'br')]"
 gsettings set org.gnome.Weather locations "[<(uint32 2, <('São Paulo', 'SBMT', true, [(-0.41044326824509736, -0.8139052020289248)], [(-0.41073414481823473, -0.81361432545578749)])>)>]"
 gsettings set org.gnome.GWeather temperature-unit 'centigrade'
 
@@ -777,7 +829,7 @@ fi
 
 # GNOME Shell Default Extensions Activation
 sudo -E -u $user_selected bash <<EOC
-gsettings set org.gnome.shell enabled-extensions "['background-logo@fedorahosted.org', 'appindicatorsupport@rgcjonas.gmail.com', 'user-theme@gnome-shell-extensions.gcampax.github.com']"
+gsettings set org.gnome.shell enabled-extensions "['background-logo@fedorahosted.org', 'user-theme@gnome-shell-extensions.gcampax.github.com']"
 EOC
 
 echo ""
@@ -817,13 +869,6 @@ sed -i 's/plugins=(git)/plugins=(git)\nZSH_DISABLE_COMPFIX=true/' /usr/share/oh-
 # Create a backup copy of original zshrc
 cp /usr/share/oh-my-zsh/zshrc /usr/share/oh-my-zsh/zshrc.backup
 
-## Install recommended fonts (Nerd Fonts) for Powerlevel10k
-mkdir -p /usr/share/fonts/meslo
-wget -q https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Meslo.zip -O /tmp/Meslo.zip
-unzip -q /tmp/Meslo.zip -d /usr/share/fonts/meslo
-fc-cache -f
-rm  /tmp/Meslo.zip
-
 ## Install Powelevel10k
 git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-/usr/share/oh-my-zsh/custom}/themes/powerlevel10k
 
@@ -861,11 +906,11 @@ EOI
 sudo ln /usr/share/oh-my-zsh/zshrc /etc/skel/.zshrc
 
 # Copy zshrc to $HOME for root and change default shell to ZSH
-cp /usr/share/oh-my-zsh/zshrc /root/.zshrc
+ln /usr/share/oh-my-zsh/zshrc /root/.zshrc
 echo "$USER" | chsh -s /bin/zsh
 
 # Copy zshrc to $HOME for user and change default shell to ZSH
-cp /usr/share/oh-my-zsh/zshrc $home_selected/.zshrc
+ln /usr/share/oh-my-zsh/zshrc $home_selected/.zshrc
 usermod --shell $(which zsh) $user_selected
 chown -R $user_selected:$user_selected $home_selected/.zshrc
 
