@@ -38,7 +38,7 @@ fi
 install_nvidia_drivers=''
 while getopts 'n' flag; do
   case "${flag}" in
-    a) install_nvidia_drivers='true' ;;
+    n) install_nvidia_drivers='true' ;;
     *) print_usage
         echo "Invalid flag or argument."
         exit 1 ;;
@@ -673,6 +673,7 @@ echo ""
 wget -O "languagetool.zip" "https://languagetool.org/download/LanguageTool-stable.zip" -o "/dev/null"
 
 # create an appropriate location
+mkdir $home_selected/.bin
 mkdir $home_selected/.bin/languagetool
 
 # Extract
@@ -1061,11 +1062,11 @@ EOI
 sudo ln -s /usr/share/oh-my-zsh/zshrc /etc/skel/.zshrc
 
 # Copy zshrc to $HOME for root and change default shell to ZSH
-ln /usr/share/oh-my-zsh/zshrc /root/.zshrc
+ln -s /usr/share/oh-my-zsh/zshrc /root/.zshrc
 echo "$USER" | chsh -s /bin/zsh
 
 # Copy zshrc to $HOME for user and change default shell to ZSH
-ln /usr/share/oh-my-zsh/zshrc $home_selected/.zshrc
+ln -s /usr/share/oh-my-zsh/zshrc $home_selected/.zshrc
 usermod --shell $(which zsh) $user_selected
 chown -R $user_selected:$user_selected $home_selected/.zshrc
 
@@ -1099,7 +1100,7 @@ echo ""
 # Install and configure nvidia and CUDA drivers
 #####
 
-if [ -n "$(lspci | grep -E "NVIDIA|nvidia|Nvidia|NVidia")" ] && [[ -n $install_nvidia_drivers ]]
+if [ -n "$(lspci | grep -E "NVIDIA|nvidia|Nvidia|NVidia")" ] && [[ -n "$install_nvidia_drivers" ]]
 then
         echo "-----------------------------------------------------------------------"
         echo "FEDORA-SETUP: Installing NVidia drivers."
