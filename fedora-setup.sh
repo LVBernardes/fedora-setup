@@ -9,6 +9,12 @@ echo "Setup script directory path: $script_dir_path"
 # Check which user is running the script
 #####
 
+
+print_usage() {
+  printf "Usage: ..."
+}
+
+
 # Check if script was executed as ROOT
 if ((${EUID:-0} || "$(id -u)")); then
    echo "ERROR: This script must be run as root." 
@@ -27,6 +33,17 @@ if [ -v $DBUS_SESSION_BUS_ADDRESS ]; then
 	echo "ERROR: You need to run 'sudo -E' to preserve session environment variables."
 	exit 1
 fi
+
+# Check for nvidia drivers installation flag
+install_nvidia_drivers=''
+while getopts 'n' flag; do
+  case "${flag}" in
+    a) install_nvidia_drivers='true' ;;
+    *) print_usage
+        echo "Invalid flag or argument."
+        exit 1 ;;
+  esac
+done
 
 # Storing USER and HOME variables for later configurations
 user_selected=$1
@@ -125,6 +142,7 @@ Log_Open
 
 echo ""
 echo "FEDORA-SETUP: Initializing setup process."
+echo "-----------------------------------------------------------------------"
 echo ""
 
 # ----------------------------------------------------------------------------
@@ -132,7 +150,7 @@ echo ""
 # First configs to kernel and DNF
 #####
 
-echo ""
+echo "-----------------------------------------------------------------------"
 echo "FEDORA-SETUP: Configuring kernel and SO."
 echo ""
 
@@ -162,6 +180,7 @@ EOF
 
 echo ""
 echo "FEDORA-SETUP: Configuring kernel and SO finished."
+echo "-----------------------------------------------------------------------"
 echo ""
 
 # ----------------------------------------------------------------------------
@@ -169,7 +188,7 @@ echo ""
 # Disable unnecessary repositories
 #####
 
-echo ""
+echo "-----------------------------------------------------------------------"
 echo "FEDORA-SETUP: Disabling unnecessary repositories."
 echo ""
 
@@ -179,6 +198,7 @@ dnf config-manager --set-disabled rpmfusion-nonfree-steam
 
 echo ""
 echo "FEDORA-SETUP: Disabling unnecessary repositories finished."
+echo "-----------------------------------------------------------------------"
 echo ""
 
 # ----------------------------------------------------------------------------
@@ -186,7 +206,7 @@ echo ""
 # Add aditional repositories to system list
 #####
 
-echo ""
+echo "-----------------------------------------------------------------------"
 echo "FEDORA-SETUP: Instaling and configuring additional repositories."
 echo ""
 
@@ -234,6 +254,7 @@ dnf config-manager --set-disabled Adoptium
 
 echo ""
 echo "FEDORA-SETUP: Instaling and configuring additional repositories finished."
+echo "-----------------------------------------------------------------------"
 echo ""
 
 # ----------------------------------------------------------------------------
@@ -241,7 +262,7 @@ echo ""
 # Force update the whole system to the latest and greatest
 #####
 
-echo ""
+echo "-----------------------------------------------------------------------"
 echo "FEDORA-SETUP: Updating cache and drivers and upgrading existent packages."
 echo ""
 
@@ -258,6 +279,7 @@ fwupdmgr update
 
 echo ""
 echo "FEDORA-SETUP: Updating and upgrading existent packages and cache finished."
+echo "-----------------------------------------------------------------------"
 echo ""
 
 # ----------------------------------------------------------------------------
@@ -265,12 +287,13 @@ echo ""
 # Install base packages and terminal applications from repositories
 #####
 
-echo ""
+echo "-----------------------------------------------------------------------"
 echo "FEDORA-SETUP: Installing base packages and terminal applications."
 echo ""
 
 dnf install \
 -y `# Do not ask for confirmation` \
+akmods `# Automatic kmods build and install tool (used for building nvidia driver kernel modules)` \
 ansible `# SSH-based configuration management, deployment, and task execution system` \
 ansible-collection-ansible-netcommon `# Ansible Network Collection for Common Cod` \
 ansible-collection-ansible-posix `# Ansible Collection targeting POSIX and POSIX-ish platforms` \
@@ -297,18 +320,21 @@ gvfs-smb `# gnome<>samba` \
 htop `# Interactive CLI process monitor` \
 httpie `# A Curl-like tool for humans` \
 jq `# Command-line JSON processor` \
+kmodtool `# Tool for building kmod packages (used for building nvidia driver kernel modules)` \
 julia `# High-level, high-performance dynamic language for technical computing` \
 libappindicator `# Application indicators library` \
 lsd `# Ls command with a lot of pretty colors and some other stuff` \
 kernel-devel `# Development package for building kernel modules to match the kernel` \
 kernel-modules `# kernel modules to match the core kernel` \
 meld `# Visual diff and merge tool` \
+mokutil `# Tool to manage UEFI Secure Boot MoK Keys (used for signing nvidia driver or other kernel modules)` \
 nano `# Because pressing i is too hard sometimes` \
 neovim `# Vim-fork focused on extensibility and agility` \
 nethogs `# Whats using all your traffic? Now you know!` \
 NetworkManager-openvpn-gnome `# To enforce that its possible to import .ovpn files in the settings` \
 nload `# A tool can monitor network traffic and bandwidth usage in real time` \
 openssh-askpass `# Base Lib to let applications request ssh pass via gui` \
+openssl `# Utilities from the general purpose cryptography library with TLS implementation` \
 p7zip `# Very high compression ratio file archiver` \
 p7zip-plugins `# Additional plugins for p7zip` \
 pv `# A tool for monitoring the progress of data through a pipeline ( | )` \
@@ -335,6 +361,7 @@ zsh `# zshell installation in preparation for oh-my-zsh`
 
 echo ""
 echo "FEDORA-SETUP: Installing base packages and terminal applications finished."
+echo "-----------------------------------------------------------------------"
 echo ""
 
 # ----------------------------------------------------------------------------
@@ -342,7 +369,7 @@ echo ""
 # Install applications and plugins from repositories
 #####
 
-echo ""
+echo "-----------------------------------------------------------------------"
 echo "FEDORA-SETUP: Installing applications."
 echo ""
 
@@ -400,6 +427,7 @@ vlc `# The cross-platform open-source multimedia framework, player and server`
 
 echo ""
 echo "FEDORA-SETUP: Installing applications finished."
+echo "-----------------------------------------------------------------------"
 echo ""
 
 # ----------------------------------------------------------------------------
@@ -407,7 +435,7 @@ echo ""
 # Install extensions, addons, fonts and themes from repositories
 #####
 
-echo ""
+echo "-----------------------------------------------------------------------"
 echo "FEDORA-SETUP: Installing extension, fonts and themes."
 echo ""
 
@@ -462,6 +490,7 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/JetBrains/JetBrainsMono/
 
 echo ""
 echo "FEDORA-SETUP: Installing extension, fonts and themes finished."
+echo "-----------------------------------------------------------------------"
 echo ""
 
 # ----------------------------------------------------------------------------
@@ -469,7 +498,7 @@ echo ""
 # Configure and use Flathub
 #####
 
-echo ""
+echo "-----------------------------------------------------------------------"
 echo "FEDORA-SETUP: Installing and configuring Flathub and applications."
 echo ""
 
@@ -491,6 +520,7 @@ EOF
 
 echo ""
 echo "FEDORA-SETUP: Installing and configuring Flathub and applications finished."
+echo "-----------------------------------------------------------------------"
 echo ""
 
 # ----------------------------------------------------------------------------
@@ -498,7 +528,7 @@ echo ""
 # Configure and use Snap and Snap Store Applications
 #####
 
-echo ""
+echo "-----------------------------------------------------------------------"
 echo "FEDORA-SETUP: Installing and configuring Snap."
 echo ""
 
@@ -510,6 +540,7 @@ snap install snap-store
 
 echo ""
 echo "FEDORA-SETUP: Installing and configuring Snap finished."
+echo "-----------------------------------------------------------------------"
 echo ""
 
 
@@ -519,7 +550,7 @@ echo ""
 # or set a more specific tuned profile
 #####
 
-echo ""
+echo "-----------------------------------------------------------------------"
 echo "FEDORA-SETUP: Enabling applications daemons."
 echo ""
 
@@ -553,6 +584,7 @@ firewall-cmd --add-service=cockpit --permanent
 
 echo ""
 echo "FEDORA-SETUP: Enabling applications daemons finished."
+echo "-----------------------------------------------------------------------"
 echo ""
 
 # ----------------------------------------------------------------------------
@@ -560,7 +592,7 @@ echo ""
 # Installing Zotero
 #####
 
-echo ""
+echo "-----------------------------------------------------------------------"
 echo "FEDORA-SETUP: Installing Zotero."
 echo ""
 
@@ -594,6 +626,7 @@ ln -s /opt/zotero/zotero.desktop $home_selected/.local/share/applications/zotero
 
 echo ""
 echo "FEDORA-SETUP: Zotero successfully installed."
+echo "-----------------------------------------------------------------------"
 echo ""
 
 
@@ -602,7 +635,7 @@ echo ""
 # Installing TeamViewer
 #####
 
-echo ""
+echo "-----------------------------------------------------------------------"
 echo "FEDORA-SETUP: Installing TeamViewer."
 echo ""
 
@@ -623,6 +656,7 @@ rm -f TeamViewer2017.asc teamviewer.x86_64.rpm
 
 echo ""
 echo "FEDORA-SETUP: Teamviewer successfully installed."
+echo "-----------------------------------------------------------------------"
 echo ""
 
 
@@ -631,7 +665,7 @@ echo ""
 # Installing LanguateTool
 #####
 
-echo ""
+echo "-----------------------------------------------------------------------"
 echo "FEDORA-SETUP: Installing LanguateTool Server."
 echo ""
 
@@ -639,7 +673,7 @@ echo ""
 wget -O "languagetool.zip" "https://languagetool.org/download/LanguageTool-stable.zip" -o "/dev/null"
 
 # create an appropriate location
-mkdir .bin/languagetool
+mkdir $home_selected/.bin/languagetool
 
 # Extract
 unzip -q languagetool.zip -d $home_selected/.bin/languagetool
@@ -652,6 +686,7 @@ rm -f languagetool.zip
 
 echo ""
 echo "FEDORA-SETUP: LanguateTool Server successfully installed."
+echo "-----------------------------------------------------------------------"
 echo ""
 
 # ----------------------------------------------------------------------------
@@ -659,7 +694,7 @@ echo ""
 # AppImage Integrator
 #####
 
-echo ""
+echo "-----------------------------------------------------------------------"
 echo "FEDORA-SETUP: Installing and configuring AppImageLauncher integrator."
 echo ""
 
@@ -687,6 +722,7 @@ rm $home_selected/appimagelauncher.rpm
 
 echo ""
 echo "FEDORA-SETUP: Installing and configuring AppImageLauncher integrator finished."
+echo "-----------------------------------------------------------------------"
 echo ""
 
 # ----------------------------------------------------------------------------
@@ -694,7 +730,7 @@ echo ""
 # AppImage Applications
 #####
 
-echo ""
+echo "-----------------------------------------------------------------------"
 echo "FEDORA-SETUP: Installing and configuring AppImage applications."
 echo ""
 
@@ -721,6 +757,7 @@ chown -R $user_selected:$user_selected $home_selected/.bin/appimagefiles/insomni
 
 echo ""
 echo "FEDORA-SETUP: Installing and configuring AppImage applications finished."
+echo "-----------------------------------------------------------------------"
 echo ""
 
 # ----------------------------------------------------------------------------
@@ -728,7 +765,7 @@ echo ""
 # Theming and GNOME Options
 #####
 
-echo ""
+echo "-----------------------------------------------------------------------"
 echo "FEDORA-SETUP: Configuring dconf settings."
 echo ""
 
@@ -740,6 +777,8 @@ gsettings set org.freedesktop.Tracker3.Miner.Files throttle 15
 EOC
 
 # Nautilus (File Manager) configuration
+{
+
 sudo -E -u $user_selected bash <<EOC
 gsettings set org.gnome.nautilus.preferences default-folder-viewer 'list-view'
 gsettings set org.gnome.nautilus.window-state sidebar-width 250
@@ -750,7 +789,22 @@ gsettings set org.gnome.nautilus.list-view default-column-order "['name','size',
 gsettings set org.gnome.nautilus.list-view default-visible-columns "['name','size','type','detailed_type','date_modified','date_created','starred']"
 EOC
 
+echo ""
+echo "FEDORA-SETUP: Succesfully configured Nautilus (File Manager)."
+echo ""
+
+} || {
+
+echo ""
+echo "FEDORA-SETUP: Failed to configure Nautilus (File Manager)."
+echo ""
+
+}
+
+
 # File Chooser configuration
+{
+
 sudo -E -u $user_selected bash <<EOC
 gsettings set org.gtk.Settings.FileChooser sort-directories-first true
 gsettings set org.gtk.Settings.FileChooser date-format 'with-time'
@@ -758,7 +812,21 @@ gsettings set org.gtk.Settings.FileChooser show-hidden true
 gsettings set org.gtk.Settings.FileChooser type-format 'mime'
 EOC
 
+echo ""
+echo "FEDORA-SETUP: Succesfully configured File Chooser."
+echo ""
+
+} || {
+
+echo ""
+echo "FEDORA-SETUP: Failed to configure File Chooser."
+echo ""
+
+}
+
 # Usability Improvements in GNOME Desktop Interface (buttons, periphericals, etc)
+{
+
 sudo -E -u $user_selected bash <<EOC
 gsettings set org.gnome.shell.extensions.user-theme name 'Flat-Remix-Blue-Dark-fullPanel'
 gsettings set org.gnome.desktop.interface clock-show-weekday true
@@ -784,7 +852,24 @@ gsettings set org.gnome.GWeather temperature-unit 'centigrade'
 
 EOC
 
+echo ""
+echo "FEDORA-SETUP: Succesfully configured Usability Improvements in GNOME Desktop Interface (buttons, periphericals, etc)."
+echo ""
+
+} || {
+
+echo ""
+echo "FEDORA-SETUP: Failed to configure Usability Improvements in GNOME Desktop Interface (buttons, periphericals, etc)."
+echo ""
+
+}
+
+
+
+
 # Usability Improvements in GNOME Desktop Interface (behaviours, locale, hotkeys)
+{
+
 sudo -E -u $user_selected bash <<EOC
 gsettings set org.gnome.shell.overrides workspaces-only-on-primary false
 gsettings set org.gnome.system.locale region 'pt_BR.UTF-8'
@@ -794,7 +879,21 @@ gsettings set org.gnome.mutter workspaces-only-on-primary true
 gsettings set org.gnome.tweaks show-extensions-notice false
 EOC
 
+echo ""
+echo "FEDORA-SETUP: Succesfully configured Usability Improvements in GNOME Desktop Interface (behaviours, locale, hotkeys)."
+echo ""
+
+} || {
+
+echo ""
+echo "FEDORA-SETUP: Failed to configure Usability Improvements in GNOME Desktop Interface (behaviours, locale, hotkeys)."
+echo ""
+
+}
+
 # Apps and UX configs for different Gnome Shell version equal or superior to 42
+{
+
 if [ "$(gnome-shell --version | cut -d" " -f3 | cut -d. -f1)" -ge 42 ]
 then
     # Dark mode preference mode for compliant apps and extensions
@@ -827,13 +926,41 @@ EOC
 
 fi
 
+echo ""
+echo "FEDORA-SETUP: Succesfully configured GNOME Shell 43+ specifics."
+echo ""
+
+} || {
+
+echo ""
+echo "FEDORA-SETUP: Failed to configure GNOME Shell 43+ specifics)."
+echo ""
+
+}
+
 # GNOME Shell Default Extensions Activation
+{
+
 sudo -E -u $user_selected bash <<EOC
 gsettings set org.gnome.shell enabled-extensions "['background-logo@fedorahosted.org', 'user-theme@gnome-shell-extensions.gcampax.github.com']"
 EOC
 
 echo ""
+echo "FEDORA-SETUP: Succesfully activated built-in GNOME shell extensions."
+echo ""
+
+} || {
+
+echo ""
+echo "FEDORA-SETUP: Failed to activated built-in GNOME shell extensions."
+echo ""
+
+}
+
+
+echo ""
 echo "FEDORA-SETUP: Configuring dconf settings finished."
+echo "-----------------------------------------------------------------------"
 echo ""
 
 # ----------------------------------------------------------------------------
@@ -841,9 +968,11 @@ echo ""
 # Oh-My-Zsh, Powerlevel10k and LSD configuration
 #####
 
-echo ""
+echo "-----------------------------------------------------------------------"
 echo "FEDORA-SETUP: Installing and Configuring Oh-My-Zsh with Powerlevel10k."
 echo ""
+
+{
 
 # Install oh-my-szh
 ZSH=/usr/share/oh-my-zsh sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
@@ -869,9 +998,35 @@ sed -i 's/plugins=(git)/plugins=(git)\nZSH_DISABLE_COMPFIX=true/' /usr/share/oh-
 # Create a backup copy of original zshrc
 cp /usr/share/oh-my-zsh/zshrc /usr/share/oh-my-zsh/zshrc.backup
 
+echo ""
+echo "FEDORA-SETUP: Succesfully installed Oh-My-Zsh."
+echo ""
+
+} || {
+
+echo ""
+echo "FEDORA-SETUP: Failed to install Oh-My-Zsh."
+echo ""
+
+}
+
+{
 ## Install Powelevel10k
 git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-/usr/share/oh-my-zsh/custom}/themes/powerlevel10k
 
+echo ""
+echo "FEDORA-SETUP: Succesfully installed Powerlevel10k."
+echo ""
+
+} || {
+
+echo ""
+echo "FEDORA-SETUP: Failed to install Powerlevel10k."
+echo ""
+
+}
+
+{
 # Configure .zshrc file to use Powerlevel10k
 sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="powerlevel10k\/powerlevel10k"/g' /usr/share/oh-my-zsh/zshrc
 tee -a /usr/share/oh-my-zsh/zshrc > /dev/null << 'EOI'
@@ -903,7 +1058,7 @@ alias lta='ls -la --tree --depth'
 EOI
 
 # Create Symbolic Links to /etc/skel
-sudo ln /usr/share/oh-my-zsh/zshrc /etc/skel/.zshrc
+sudo ln -s /usr/share/oh-my-zsh/zshrc /etc/skel/.zshrc
 
 # Copy zshrc to $HOME for root and change default shell to ZSH
 ln /usr/share/oh-my-zsh/zshrc /root/.zshrc
@@ -922,14 +1077,31 @@ then
     chown -R $user_selected:$user_selected $home_selected/.p10k.zsh
 fi 
 
+echo ""
+echo "FEDORA-SETUP: Succesfully configured Powerlevel10k."
+echo ""
+
+} || {
+
+echo ""
+echo "FEDORA-SETUP: Failed to configure Powerlevel10k."
+echo ""
+
+}
+
+echo ""
+echo "FEDORA-SETUP: Installing and Configuring Oh-My-Zsh with Powerlevel10k finished."
+echo "-----------------------------------------------------------------------"
+echo ""
+
 # ----------------------------------------------------------------------------
 #####
 # Install and configure nvidia and CUDA drivers
 #####
 
-if [ -n "$(lspci | grep -E "NVIDIA|nvidia|Nvidia|NVidia")" ]
+if [ -n "$(lspci | grep -E "NVIDIA|nvidia|Nvidia|NVidia")" ] && [[ -n $install_nvidia_drivers ]]
 then
-        echo ""
+        echo "-----------------------------------------------------------------------"
         echo "FEDORA-SETUP: Installing NVidia drivers."
         echo ""
 
@@ -946,6 +1118,7 @@ then
 
         echo ""
         echo "FEDORA-SETUP: Installing NVidia drivers finished."
+        echo "-----------------------------------------------------------------------"
         echo ""
 fi
 
@@ -954,7 +1127,7 @@ fi
 # Configure and use Snap and Snap Store Applications
 #####
 
-echo ""
+echo "-----------------------------------------------------------------------"
 echo "FEDORA-SETUP: Installing and configuring Snap."
 echo ""
 
@@ -969,6 +1142,7 @@ snap install snap-store
 
 echo ""
 echo "FEDORA-SETUP: Installing and configuring Snap finished."
+echo "-----------------------------------------------------------------------"
 echo ""
 
 
@@ -976,6 +1150,10 @@ echo ""
 #####
 # Configure Gnome Terminal to work with Oh-my-zsh and Powerlevel10k
 #####
+
+echo "-----------------------------------------------------------------------"
+echo "FEDORA-SETUP: Configure Gnome Terminal to work with Oh-my-zsh and Powerlevel10k."
+echo ""
 
 sudo -E -u $user_selected bash <<-EOC
 gsettings set "org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/" default-size-columns 160
@@ -986,18 +1164,25 @@ gsettings set "org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/prof
 gsettings set org.gnome.desktop.interface monospace-font-name 'MesloLGS Nerd Font Mono 10'
 EOC
 
+echo ""
+echo "FEDORA-SETUP: Configure Gnome Terminal to work with Oh-my-zsh and Powerlevel10k finished."
+echo "-----------------------------------------------------------------------"
+echo ""
+
 # ----------------------------------------------------------------------------
 #####
 # Ending setup process
 #####
 
-echo ""
+echo "-----------------------------------------------------------------------"
 echo "FEDORA-SETUP: Ending setup."
+echo "-----------------------------------------------------------------------"
 echo ""
 
 # Restart
-echo ""
+echo "-----------------------------------------------------------------------"
 echo "FEDORA-SETUP: Please, restart."
+echo "-----------------------------------------------------------------------"
 echo ""
 
 Log_Close
