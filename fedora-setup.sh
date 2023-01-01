@@ -1189,3 +1189,5 @@ echo ""
 Log_Close
 
 chown -R $user_selected:$user_selected $LOGDIR/$JobClass
+
+# Script end
