@@ -292,6 +292,8 @@ echo "FEDORA-SETUP: Installing base packages and terminal applications."
 echo ""
 
 dnf install \
+--allowerasing `# Replace conflicting packages` \
+--skip-broken `# Skip uninstallable packages` \
 -y `# Do not ask for confirmation` \
 akmods `# Automatic kmods build and install tool (used for building nvidia driver kernel modules)` \
 ansible `# SSH-based configuration management, deployment, and task execution system` \
@@ -300,6 +302,7 @@ ansible-collection-ansible-posix `# Ansible Collection targeting POSIX and POSIX
 ansible-collection-ansible-utils `# Ansible Network Collection for Common Code` \
 ansible-core-doc `# Documentation for Ansible Bas` \
 bat `# cat(1) clone with wings` \
+ca-certificates`# The Mozilla CA root certificate bundle` \
 curl `# A utility for getting files from remote servers (FTP, HTTP, and others)` \
 dnf-plugins-core `# Core Plugins for DNF` \
 exa `# Modern replacement for ls` \
@@ -308,6 +311,7 @@ ffmpeg `# Adds Codec Support to Firefox, and in general` \
 fuse `# File System in Userspace (FUSE) v2 utilities` \
 fuse-common `# Common files for File System in Userspace (FUSE) v2 and v3` \
 fuse-sshfs `# FUSE-Filesystem to access remote filesystems via SSH` \
+fzf `# A command-line fuzzy finder written in Go` \
 gcc `# Various compilers (C, C++, Objective-C, ...)` \
 gcc-c++ `# C++ support for GCC` \
 git `# Fast Version Control System` \
@@ -374,6 +378,8 @@ echo "FEDORA-SETUP: Installing applications."
 echo ""
 
 dnf install \
+--allowerasing `# Replace conflicting packages` \
+--skip-broken `# Skip uninstallable packages` \
 -y `# Do not ask for confirmation` \
 blender `# 3D Software Powerhouse` \
 calibre `# Ebook management` \
@@ -385,18 +391,17 @@ cockpit-podman `# Download, use, and manage containers in your browser. (Podman 
 cockpit-storaged `# Manage your system’s storage. Supports local partitions, encryption, NFS, RAID, iSCSI, and more.` \
 code `# Visual Studio Code application` \
 darktable `# Easy RAW Editor` \
+darktable-tools-noise.x86_64 `# The noise profiling tools to support new cameras` \
 dconf-editor `# Configuration editor for dconf` \
 easyeffects `# Audio effects for PipeWire applications` \
 filezilla `# S/FTP Access` \
 flameshot `# Powerful and simple to use screenshot software` \
 gimp `# The Image Editing Powerhouse - and its plugins` \
 gimp-data-extras \
-gimp-dbp \
 gimp-dds-plugin \
 gimp-elsamuko \
-gimp-focusblur-plugin \
 gimp-fourier-plugin \
-gimpfx-foundry.noarch \
+gimpfx-foundry \
 gimp-high-pass-filter \
 gimp-layer-via-copy-cut \
 gimp-lensfun \
@@ -430,6 +435,43 @@ echo "FEDORA-SETUP: Installing applications finished."
 echo "-----------------------------------------------------------------------"
 echo ""
 
+
+# ----------------------------------------------------------------------------
+#####
+# IInstalling packages to be used by pyenv for build python from source.
+#####
+
+echo "-----------------------------------------------------------------------"
+echo "FEDORA-SETUP: Installing packages to be used by pyenv for build python from source."
+echo 
+
+dnf install \
+--allowerasing `# Replace conflicting packages` \
+--skip-broken `# Skip uninstallable packages` \
+-y `# Do not ask for confirmation` \
+make `# A GNU tool which simplifies the build process for users` \
+gcc `# Various compilers (C, C++, Objective-C, ...)` \
+patch `# Utility for modifying/upgrading files` \
+zlib-devel `# Header files and libraries for Zlib development` \
+bzip2 `# File compression utility` \
+bzip2-devel `# Libraries and header files for apps which will use bzip2` \
+readline-devel `# Files needed to develop programs which use the readline library` \
+sqlite `# Library that implements an embeddable SQL database engine` \
+sqlite-devel `# Development tools for the sqlite3 embeddable SQL database engine` \
+openssl-devel `# Files for development of applications which will use OpenSSL` \
+tk-devel `# Tk graphical toolkit development files` \
+libffi-devel `# Development files for libffi` \
+xz-devel `# Devel libraries & headers for liblzma` \
+libuuid-devel `# Universally unique ID library` \
+gdbm-libs `# Libraries files for gdbm` \
+libnsl2 `# Public client interface library for NIS(YP) and NIS+`
+
+echo ""
+echo "FEDORA-SETUP: Installing packages to be used by pyenv for build python from source finished."
+echo "-----------------------------------------------------------------------"
+echo ""
+
+
 # ----------------------------------------------------------------------------
 #####
 # Install extensions, addons, fonts and themes from repositories
@@ -450,20 +492,22 @@ fira-code-fonts
 
 ## Install recommended fonts (Nerd Fonts) for Powerlevel10k
 mkdir -p /usr/share/fonts/meslo
-wget -q https://github.com/ryanoasis/nerd-fonts/releases/download/v2.2.2/Meslo.zip -O /tmp/Meslo.zip
+wget -q https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/Meslo.zip -O /tmp/Meslo.zip
 unzip -q /tmp/Meslo.zip -d /usr/share/fonts/meslo
 fc-cache -f
 rm  /tmp/Meslo.zip
 
 ## Install patch (Nerd Fonts) JetBrains Mono
 mkdir -p /usr/share/fonts/jetbrains-mono-fonts-all
-wget -q https://github.com/ryanoasis/nerd-fonts/releases/download/v2.2.2/JetBrainsMono.zip -O /tmp/JetBrainsMono.zip
+wget -q https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/JetBrainsMono.zip -O /tmp/JetBrainsMono.zip
 unzip -q /tmp/JetBrainsMono.zip -d /usr/share/fonts/jetbrains-mono-fonts-all
 fc-cache -f
 rm  /tmp/JetBrainsMono.zip
 
 # Extensions
 dnf install \
+--allowerasing `# Replace conflicting packages` \
+--skip-broken `# Skip uninstallable packages` \
 -y `# Do not ask for confirmation` \
 beesu `# Graphical wrapper for su` \
 file-roller-nautilus `# More Archives supported in nautilus` \
@@ -472,21 +516,18 @@ gnome-shell-extension-user-theme `# Enables theming the gnome shell` \
 gnome-terminal-nautilus `# GNOME Terminal extension for Nautilus` \
 gnome-tweaks `# Your central place to make gnome like you want` \
 gtkhash-nautilus `# To get a file hash via GUI` \
-nautilus-extensions `# What it says on the tin` \
+nautilus-extensions `# Nautilus extensions library` \
 nautilus-image-converter `# Image converter option in context menu` \
 nautilus-python `# Python bindings for Nautilus` \
 nautilus-search-tool `# Searh option in context menu`
 
 # Themes
+sudo dnf copr enable -y daniruiz/flat-remix
 dnf install \
 -y `# Do not ask for confirmation` \
 arc-theme `# Flat theme with transparent elements` \
 papirus-icon-theme `# Free and open source SVG icon theme based on Paper Icon Set` \
-flat-remix-theme `# Pretty simple theme inspired on material design`
-
-
-# Installing JetBrains Mono NerdFont
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/JetBrains/JetBrainsMono/master/install_manual.sh)"
+flat-remix-gnome `# Pretty simple theme inspired on material design`
 
 echo ""
 echo "FEDORA-SETUP: Installing extension, fonts and themes finished."
@@ -780,9 +821,10 @@ EOC
 # Nautilus (File Manager) configuration
 {
 
+# gsettings set org.gnome.nautilus.window-state sidebar-width 250
+
 sudo -E -u $user_selected bash <<EOC
 gsettings set org.gnome.nautilus.preferences default-folder-viewer 'list-view'
-gsettings set org.gnome.nautilus.window-state sidebar-width 250
 gsettings set org.gnome.nautilus.window-state maximized true
 gsettings set org.gnome.nautilus.icon-view default-zoom-level 'standard'
 gsettings set org.gnome.nautilus.list-view use-tree-view true
@@ -976,28 +1018,104 @@ echo ""
 {
 
 # Install oh-my-szh
-ZSH=/usr/share/oh-my-zsh sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+export ZSH="/usr/share/oh-my-zsh"
+sh -c "$(curl -fSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 
 # # Add oh-my-zsh to /usr/share
 # mv /root/.oh-my-zsh /usr/share
 # mv /usr/share/.oh-my-zsh /usr/share/oh-my-zsh
-mv /root/.zshrc /usr/share/oh-my-zsh
-mv /usr/share/oh-my-zsh/.zshrc /usr/share/oh-my-zsh/zshrc
+# mv /root/.zshrc /usr/share/oh-my-zsh
+# mv /usr/share/oh-my-zsh/.zshrc /usr/share/oh-my-zsh/zshrc
+
+if [ -f  "/root/.zshrc" ] 
+then
+    mv /root/.zshrc /usr/share/oh-my-zsh
+    mv /usr/share/oh-my-zsh/.zshrc /usr/share/oh-my-zsh/zshrc
+else
+    mv "${home_selected}"/.zshrc /usr/share/oh-my-zsh
+    mv /usr/share/oh-my-zsh/.zshrc /usr/share/oh-my-zsh/zshrc
+fi 
 
 # # Modify zshrc to point to /usr/share/oh-my-zsh
 # sed -i 's|export ZSH="$HOME/.oh-my-zsh"|export ZSH="\/usr\/share\/oh-my-zsh"|g' /usr/share/oh-my-zsh/zshrc
 
+# Activate update reminder
+sed -i "s/# zstyle ':omz:update' mode reminder  # just remind me to update when it's time/zstyle ':omz:update' mode reminder  # just remind me to update when it's time/" /usr/share/oh-my-zsh/zshrc
+
 # Enable Autocorrection for zsh
 sed -i 's/# ENABLE_CORRECTION="true"/ENABLE_CORRECTION="true"/g' /usr/share/oh-my-zsh/zshrc
 
-# Enable Autosuggestions and sintax highlighting plugins ofr zsh
+# Enable Autosuggestions, sintax highlighting and fzf plugins for zsh
 git clone --depth=1 https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-/usr/share/oh-my-zsh/custom}/plugins/zsh-autosuggestions
 git clone --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-/usr/share/oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
-sed -i 's/plugins=(git)/plugins=(\n  git\n  zsh-autosuggestions\n  zsh-syntax-highlighting\n)/' /usr/share/oh-my-zsh/zshrc
 sed -i 's/plugins=(git)/plugins=(git)\nZSH_DISABLE_COMPFIX=true/' /usr/share/oh-my-zsh/zshrc
+sed -i 's/plugins=(git)/plugins=(\n  git\n  zsh-autosuggestions\n  zsh-syntax-highlighting\n  fzf\n)/' /usr/share/oh-my-zsh/zshrc
+
 
 # Create a backup copy of original zshrc
 cp /usr/share/oh-my-zsh/zshrc /usr/share/oh-my-zsh/zshrc.backup
+
+# Configure LSD alias over 'ls'
+tee -a /usr/share/oh-my-zsh/zshrc > /dev/null << 'EOI'
+
+# Configuration for LSD alias over LS
+alias ls='lsd'
+alias l='ls -l'
+alias la='ls -a'
+alias lla='ls -la'
+alias lt='ls --tree --depth'
+alias lta='ls -la --tree --depth'
+
+EOI
+
+# Configure FZF
+tee -a /usr/share/oh-my-zsh/zshrc > /dev/null << 'EOI'
+
+# ZFZ configuration
+export FZF_BASE="$(which fzf)/.fzf"
+export FZF_DEFAULT_COMMAND='rg --hidden --no-ignore --files -g "!.git/"'
+export FZF_CTRL_T_COMMAND=$FZF_DEFAULT_COMMAND
+export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
+
+EOI
+
+# other aliases
+tee -a /usr/share/oh-my-zsh/zshrc > /dev/null << 'EOI'
+
+# General aliases
+alias python=python3
+alias gs="git status"
+alias fp="fzf --preview 'bat --style=numbers --color=always --line-range :500 {}'"
+
+EOI
+
+# add user .local/bin and /bin to PATH
+tee -a /usr/share/oh-my-zsh/zshrc > /dev/null << 'EOI'
+
+# set PATH so it includes user's private bin if it exists
+if [ -d "$HOME/bin" ] ; then
+    PATH="$HOME/bin:$PATH"
+fi
+
+# set PATH so it includes user's private bin if it exists
+if [ -d "$HOME/.local/bin" ] ; then
+    PATH="$HOME/.local/bin:$PATH"
+fi
+
+EOI
+
+# Create Symbolic Links to /etc/skel
+sudo ln -s /usr/share/oh-my-zsh/zshrc /etc/skel/.zshrc
+
+# Copy zshrc to $HOME for root and change default shell to ZSH
+ln -s /usr/share/oh-my-zsh/zshrc /root/.zshrc
+echo "$USER" | chsh -s /bin/zsh
+
+# Copy zshrc to $HOME for user and change default shell to ZSH
+ln -s /usr/share/oh-my-zsh/zshrc ${home_selected}/.zshrc
+usermod --shell $(which zsh) $user_selected
+chown -R $user_selected:$user_selected ${home_selected}/.zshrc
+chown -R $user_selected:$user_selected /usr/share/oh-my-zsh
 
 echo ""
 echo "FEDORA-SETUP: Succesfully installed Oh-My-Zsh."
@@ -1045,31 +1163,6 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
 fi\
 ' /usr/share/oh-my-zsh/zshrc
 
-# Configure LSD alias over 'ls'
-tee -a /usr/share/oh-my-zsh/zshrc > /dev/null << 'EOI'
-
-# Configuration for LSD alias over LS
-alias ls='lsd'
-alias l='ls -l'
-alias la='ls -a'
-alias lla='ls -la'
-alias lt='ls --tree --depth'
-alias lta='ls -la --tree --depth' 
-
-EOI
-
-# Create Symbolic Links to /etc/skel
-sudo ln -s /usr/share/oh-my-zsh/zshrc /etc/skel/.zshrc
-
-# Copy zshrc to $HOME for root and change default shell to ZSH
-ln -s /usr/share/oh-my-zsh/zshrc /root/.zshrc
-echo "$USER" | chsh -s /bin/zsh
-
-# Copy zshrc to $HOME for user and change default shell to ZSH
-ln -s /usr/share/oh-my-zsh/zshrc $home_selected/.zshrc
-usermod --shell $(which zsh) $user_selected
-chown -R $user_selected:$user_selected $home_selected/.zshrc
-
 # Copy Powerlevel10k config file to both root and user home directories
 if [ -f "$script_dir_path/p10k.zsh" ] 
 then
@@ -1089,6 +1182,31 @@ echo "FEDORA-SETUP: Failed to configure Powerlevel10k."
 echo ""
 
 }
+
+echo
+echo "-----------------------------------------------------------------------"
+echo "FEDORA-SETUP: Installing pyenv."
+echo 
+
+export PYENV_ROOT=${home_selected}/.pyenv
+curl -s https://pyenv.run | bash
+
+
+tee -a /usr/share/oh-my-zsh/zshrc ${home_selected}/.profile ${home_selected}/.zprofile ${home_selected}/.bashrc > /dev/null << 'EOI'
+
+# Configuration for pyenv
+export PYENV_ROOT="$HOME/.pyenv"
+command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
+
+EOI
+
+chown -R $user_selected:$user_selected ${home_selected}/.pyenv
+
+echo 
+echo "FEDORA-SETUP: Installing pyenv finished."
+echo "-----------------------------------------------------------------------"
+
 
 echo ""
 echo "FEDORA-SETUP: Installing and Configuring Oh-My-Zsh with Powerlevel10k finished."
