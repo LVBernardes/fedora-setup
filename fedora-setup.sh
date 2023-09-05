@@ -515,19 +515,16 @@ gnome-extensions-app `# Manage GNOME Shell extensions` \
 gnome-shell-extension-user-theme `# Enables theming the gnome shell` \
 gnome-terminal-nautilus `# GNOME Terminal extension for Nautilus` \
 gnome-tweaks `# Your central place to make gnome like you want` \
-gtkhash-nautilus `# To get a file hash via GUI` \
-nautilus-extensions `# Nautilus extensions library` \
-nautilus-image-converter `# Image converter option in context menu` \
-nautilus-python `# Python bindings for Nautilus` \
-nautilus-search-tool `# Searh option in context menu`
 
 # Themes
 sudo dnf copr enable -y daniruiz/flat-remix
 dnf install \
+--allowerasing `# Replace conflicting packages` \
+--skip-broken `# Skip uninstallable packages` \
 -y `# Do not ask for confirmation` \
 arc-theme `# Flat theme with transparent elements` \
 papirus-icon-theme `# Free and open source SVG icon theme based on Paper Icon Set` \
-flat-remix-gnome `# Pretty simple theme inspired on material design`
+flat-remix-theme `# Pretty simple theme inspired on material design`
 
 echo ""
 echo "FEDORA-SETUP: Installing extension, fonts and themes finished."
@@ -742,7 +739,7 @@ echo ""
 
 # Download and install AppImageLauncher
 sudo -E -u $user_selected wget -q -O "$home_selected/appimagelauncher.rpm" -o "/dev/null" \
-"https://github.com$(curl -s $(curl -Ls -o /dev/null -w %{url_effective} https://github.com/TheAssassin/AppImageLauncher/releases/latest) | grep -Eoi '<a [^>]+>' | grep -Eo 'href="[^\"]+"' | grep -Eo '\/TheAssassin\/AppImageLauncher\/releases\/download\/\S*\/appimagelauncher\S*\.x86_64.rpm')"
+"https://github.com$(curl -s $(curl -Ls -o /dev/null -w %{url_effective} https://github.com/TheAssassin/AppImageLauncher/releases/latest) | grep -Eoi '<a [^>]+>' | grep -Eo 'href="[^\"]+"' | grep -Eo '/TheAssassin/AppImageLauncher/releases/download/\S*/appimagelauncher\S*\.x86_64.rpm')"
 
 dnf install -y "$home_selected/appimagelauncher.rpm"
 
@@ -960,12 +957,17 @@ gsettings set org.gnome.TextEditor show-line-numbers true
 gsettings set org.gnome.TextEditor show-map true
 gsettings set org.gnome.TextEditor show-right-margin true
 gsettings set org.gnome.TextEditor tab-width 4
+gsettings set org.gnome.TextEditor right-margin-position 120
 EOC
 
     # Weather widget configuration (GTK4+)
     sudo -E -u $user_selected bash <<-EOC
 gsettings set org.gnome.GWeather4 temperature-unit 'centigrade'
+gsettings set org.gnome.GWeather4 default-location "[<(uint32 2, <('São Paulo', 'SBMT', true, [(-0.41044326824509736, -0.8139052020289248)], [(-0.41073414481823473, -0.81361432545578749)])>)>]"
 EOC
+
+cp -r /usr/share/themes/Flat-Remix-LibAdwaita-Blue-Dark-Solid/* /$home_selected/.config/gtk-4.0/
+chown -R $user_selected:$user_selected $home_selected/.config/gtk-4.0/*
 
 fi
 
@@ -985,7 +987,9 @@ echo ""
 {
 
 sudo -E -u $user_selected bash <<EOC
-gsettings set org.gnome.shell enabled-extensions "['background-logo@fedorahosted.org', 'user-theme@gnome-shell-extensions.gcampax.github.com']"
+gsettings set org.gnome.shell enabled-extensions "['user-theme@gnome-shell-extensions.gcampax.github.com', 'appindicatorsupport@rgcjonas.gmail.com']"
+
+gsettings set org.gnome.shell enabled-extensions "['background-logo@fedorahosted.org']"
 EOC
 
 echo ""
@@ -1202,6 +1206,8 @@ eval "$(pyenv init -)"
 EOI
 
 chown -R $user_selected:$user_selected ${home_selected}/.pyenv
+chown -R $user_selected:$user_selected ${home_selected}/.profile
+chown -R $user_selected:$user_selected ${home_selected}/.zprofile
 
 echo 
 echo "FEDORA-SETUP: Installing pyenv finished."
