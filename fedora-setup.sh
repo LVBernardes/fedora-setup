@@ -562,26 +562,6 @@ echo "FEDORA-SETUP: Installing and configuring Flathub and applications finished
 echo "-----------------------------------------------------------------------"
 echo ""
 
-# ----------------------------------------------------------------------------
-#####
-# Configure and use Snap and Snap Store Applications
-#####
-
-echo "-----------------------------------------------------------------------"
-echo "FEDORA-SETUP: Installing and configuring Snap."
-echo ""
-
-# Create symlink to ensure proper functioning
-ln -s /var/lib/snapd/snap /snap
-
-# Install Snap Store
-snap install snap-store
-
-echo ""
-echo "FEDORA-SETUP: Installing and configuring Snap finished."
-echo "-----------------------------------------------------------------------"
-echo ""
-
 
 # ----------------------------------------------------------------------------
 #####
@@ -679,19 +659,19 @@ echo "FEDORA-SETUP: Installing TeamViewer."
 echo ""
 
 # Download GPG key
-wget "https://download.teamviewer.com/download/linux/signature/TeamViewer2017.asc" -o "/dev/null"
+wget -o "/dev/null" -O "TeamViewer_Linux_PubKey.asc" "https://linux.teamviewer.com/pubkey/currentkey.asc"
 
 # Add GPG key
-rpm --import TeamViewer2017.asc -y
+rpm --import TeamViewer_Linux_PubKey.asc
 
 # Download client
-wget "https://download.teamviewer.com/download/linux/teamviewer.x86_64.rpm" -o "/dev/null"
+wget -o "/dev/null" "https://download.teamviewer.com/download/linux/teamviewer.x86_64.rpm" 
 
 # Install client
 dnf install ./teamviewer.x86_64.rpm -y
 
 # Remove downloaded files
-rm -f TeamViewer2017.asc teamviewer.x86_64.rpm
+rm -f TeamViewer_Linux_PubKey.asc teamviewer.x86_64.rpm
 
 echo ""
 echo "FEDORA-SETUP: Teamviewer successfully installed."
@@ -712,8 +692,8 @@ echo ""
 wget -O "languagetool.zip" "https://languagetool.org/download/LanguageTool-stable.zip" -o "/dev/null"
 
 # create an appropriate location
-mkdir $home_selected/.bin
-mkdir $home_selected/.bin/languagetool
+mkdir -p $home_selected/.bin
+mkdir -p $home_selected/.bin/languagetool
 
 # Extract
 unzip -q languagetool.zip -d $home_selected/.bin/languagetool
@@ -778,24 +758,61 @@ echo "FEDORA-SETUP: Installing and configuring AppImage applications."
 echo ""
 
 # Create folder to store AppImage files
-mkdir $home_selected/.bin $home_selected/.bin/appimagefiles
+mkdir -p $home_selected/.bin $home_selected/.bin/appimagefiles
 chown -R $user_selected:$user_selected $home_selected/.bin
 
 # Download and install Obsidian
+{
 wget -q -O "$home_selected/.bin/appimagefiles/obisidian.AppImage" -o "/dev/null" \
 "$(wget -q -O - 'https://api.github.com/repos/obsidianmd/obsidian-releases/releases/latest' | jq -r '.assets[] | select(.name | test("Obsidian-\\d*\\.\\d*\\.\\d*\\.AppImage")).browser_download_url')"
 chown -R $user_selected:$user_selected $home_selected/.bin/appimagefiles/obisidian.AppImage
 
+echo ""
+echo "FEDORA-SETUP: Successfully downloaded and placed Obsidian ImageApp."
+echo ""
+} || {
+echo ""
+echo "FEDORA-SETUP: Failed to download and place Obsidian ImageApp."
+echo ""
+}
+
 # Download and install JetBrains ToolBox
+{
 wget -q -O "/tmp/jetbrains-toolbox.tar.bz2" -o "/dev/null" "https://download-cdn.jetbrains.com/toolbox/jetbrains-toolbox-2.0.4.17212.tar.gz"
 tar -xf /tmp/jetbrains-toolbox.tar.bz2 --strip-components=1 -C $home_selected/.bin/appimagefiles/
 chown -R $user_selected:$user_selected $home_selected/.bin/appimagefiles/jetbrains-toolbox
 rm /tmp/jetbrains-toolbox.tar.bz2
 
+echo ""
+echo "FEDORA-SETUP: Successfully downloaded and placed JeBrains ToolBox ImageApp."
+echo ""
+} || {
+echo ""
+echo "FEDORA-SETUP: Failed to download and place JeBrains ToolBox ImageApp."
+echo ""
+}
+
+
 # Download and install Insomnia Core
-wget -q -O "$home_selected/.bin/appimagefiles/insomnia.AppImage" -o "/dev/null" \
+{
+
+sudo -E -u $user_selected bash <<-EOC
+wget -q -O "insomnia.AppImage" -o "/dev/null" \
 $(wget -q -O - 'https://api.github.com/repos/Kong/Insomnia/releases' | jq -r --arg version "${"$(curl -Ls -o /dev/null -w %{url_effective} https://updates.insomnia.rest/downloads/release/latest\?app\=com.insomnia.app\&source\=website)"##*/}" '.[] | select(.tag_name == $version) | .assets[] | select(.name | endswith(".AppImage")).browser_download_url')
+EOC
+mv ./insomnia.AppImage $home_selected/.bin/appimagefiles/insomnia.AppImage
 chown -R $user_selected:$user_selected $home_selected/.bin/appimagefiles/insomnia.AppImage
+
+echo ""
+echo "FEDORA-SETUP: Successfully downloaded and placed JeBrains ToolBox ImageApp."
+echo ""
+} || {
+echo ""
+echo "FEDORA-SETUP: Failed to download and place JeBrains ToolBox ImageApp."
+echo ""
+}
+
+
 
 
 echo ""
@@ -891,7 +908,7 @@ gsettings set org.gnome.desktop.peripherals.keyboard numlock-state true
 gsettings set org.gnome.desktop.peripherals.touchpad tap-to-click true
 gsettings set org.gnome.desktop.peripherals.touchpad two-finger-scrolling-enabled true
 gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'us+intl'), ('xkb', 'br')]"
-gsettings set org.gnome.Weather locations "[<(uint32 2, <('São Paulo', 'SBMT', true, [(-0.41044326824509736, -0.8139052020289248)], [(-0.41073414481823473, -0.81361432545578749)])>)>]"
+gsettings set org.gnome.shell.weather locations "[<(uint32 2, <('São Paulo', 'SBMT', true, [(-0.41044326824509736, -0.8139052020289248)], [(-0.41073414481823473, -0.81361432545578749)])>)>]"
 gsettings set org.gnome.GWeather temperature-unit 'centigrade'
 
 EOC
@@ -969,6 +986,7 @@ EOC
 gsettings set org.gnome.GWeather4 temperature-unit 'centigrade'
 EOC
 
+mkdir -p /$home_selected/.config/gtk-4.0
 cp -r /usr/share/themes/Flat-Remix-LibAdwaita-Blue-Dark-Solid/* /$home_selected/.config/gtk-4.0/
 chown -R $user_selected:$user_selected $home_selected/.config/gtk-4.0/*
 
@@ -1265,10 +1283,7 @@ echo ""
 ln -s /var/lib/snapd/snap /snap
 
 # Updating cache
-sudo -E -u $user_selected bash <<-EOC
 snap refresh
-snap install snap-store
-EOC
 
 echo ""
 echo "FEDORA-SETUP: Installing and configuring Snap finished."
