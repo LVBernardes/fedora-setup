@@ -345,6 +345,7 @@ pv `# A tool for monitoring the progress of data through a pipeline ( | )` \
 python3 `# Python core library` \
 python3-devel `# Python Development Gear` \
 python3-neovim `# Python Neovim Libs` \
+ripgrep `# Line oriented search tool | used with FZF` \
 snapd `# A transactional software package manager. Analogous to Flatpak.` \
 solaar `# Device manager for a wide range of Logitech devices` \
 squashfuse `# FUSE filesystem to mount squashfs archives` \
@@ -738,8 +739,11 @@ echo "FEDORA-SETUP: Installing and configuring AppImageLauncher integrator."
 echo ""
 
 # Download and install AppImageLauncher
+# sudo -E -u $user_selected wget -q -O "$home_selected/appimagelauncher.rpm" -o "/dev/null" \
+# "https://github.com$(curl -s $(curl -Ls -o /dev/null -w %{url_effective} https://github.com/TheAssassin/AppImageLauncher/releases/latest) | grep -Eoi '<a [^>]+>' | grep -Eo 'href="[^\"]+"' | grep -Eo '/TheAssassin/AppImageLauncher/releases/download/\S*/appimagelauncher\S*\.x86_64.rpm')"
+
 sudo -E -u $user_selected wget -q -O "$home_selected/appimagelauncher.rpm" -o "/dev/null" \
-"https://github.com$(curl -s $(curl -Ls -o /dev/null -w %{url_effective} https://github.com/TheAssassin/AppImageLauncher/releases/latest) | grep -Eoi '<a [^>]+>' | grep -Eo 'href="[^\"]+"' | grep -Eo '/TheAssassin/AppImageLauncher/releases/download/\S*/appimagelauncher\S*\.x86_64.rpm')"
+"$(wget -q -O - 'https://api.github.com/repos/TheAssassin/AppImageLauncher/releases/latest' | jq -r '.assets[] | select(.name | test("appimagelauncher.*\\.x86_64\\.rpm")).browser_download_url')"
 
 dnf install -y "$home_selected/appimagelauncher.rpm"
 
@@ -779,18 +783,18 @@ chown -R $user_selected:$user_selected $home_selected/.bin
 
 # Download and install Obsidian
 wget -q -O "$home_selected/.bin/appimagefiles/obisidian.AppImage" -o "/dev/null" \
-"$(curl -Ls https://obsidian.md/download | grep -Eo 'href="[^\"]+"' | grep -Eo '((http|https):\/\/github\.com\/obsidianmd\/obsidian-releases\/releases\/download\/\S*\/Obsidian-[0-9]*\.[0-9]*\.[0-9]*\.AppImage)')"
+"$(wget -q -O - 'https://api.github.com/repos/obsidianmd/obsidian-releases/releases/latest' | jq -r '.assets[] | select(.name | test("Obsidian-\\d*\\.\\d*\\.\\d*\\.AppImage")).browser_download_url')"
 chown -R $user_selected:$user_selected $home_selected/.bin/appimagefiles/obisidian.AppImage
 
 # Download and install JetBrains ToolBox
-wget -q -O "/tmp/jetbrains-toolbox.tar.bz2" -o "/dev/null" "https://download.jetbrains.com/toolbox/jetbrains-toolbox-1.26.2.13244.tar.gz"
+wget -q -O "/tmp/jetbrains-toolbox.tar.bz2" -o "/dev/null" "https://download-cdn.jetbrains.com/toolbox/jetbrains-toolbox-2.0.4.17212.tar.gz"
 tar -xf /tmp/jetbrains-toolbox.tar.bz2 --strip-components=1 -C $home_selected/.bin/appimagefiles/
 chown -R $user_selected:$user_selected $home_selected/.bin/appimagefiles/jetbrains-toolbox
 rm /tmp/jetbrains-toolbox.tar.bz2
 
 # Download and install Insomnia Core
 wget -q -O "$home_selected/.bin/appimagefiles/insomnia.AppImage" -o "/dev/null" \
-https://github.com$(curl -Ls https://updates.insomnia.rest/downloads/release/latest\?app\=com.insomnia.app\&source\=website | grep -Eo 'href="[^\"]+"' | grep -Eo '\/Kong\/insomnia\/releases\/download\/\S*\/Insomnia.Core-[0-9]*\.[0-9]*\.[0-9]*\.AppImage')
+$(wget -q -O - 'https://api.github.com/repos/Kong/Insomnia/releases' | jq -r --arg version "${"$(curl -Ls -o /dev/null -w %{url_effective} https://updates.insomnia.rest/downloads/release/latest\?app\=com.insomnia.app\&source\=website)"##*/}" '.[] | select(.tag_name == $version) | .assets[] | select(.name | endswith(".AppImage")).browser_download_url')
 chown -R $user_selected:$user_selected $home_selected/.bin/appimagefiles/insomnia.AppImage
 
 
@@ -963,7 +967,6 @@ EOC
     # Weather widget configuration (GTK4+)
     sudo -E -u $user_selected bash <<-EOC
 gsettings set org.gnome.GWeather4 temperature-unit 'centigrade'
-gsettings set org.gnome.GWeather4 default-location "[<(uint32 2, <('São Paulo', 'SBMT', true, [(-0.41044326824509736, -0.8139052020289248)], [(-0.41073414481823473, -0.81361432545578749)])>)>]"
 EOC
 
 cp -r /usr/share/themes/Flat-Remix-LibAdwaita-Blue-Dark-Solid/* /$home_selected/.config/gtk-4.0/
@@ -989,7 +992,7 @@ echo ""
 sudo -E -u $user_selected bash <<EOC
 gsettings set org.gnome.shell enabled-extensions "['user-theme@gnome-shell-extensions.gcampax.github.com', 'appindicatorsupport@rgcjonas.gmail.com']"
 
-gsettings set org.gnome.shell enabled-extensions "['background-logo@fedorahosted.org']"
+gsettings set org.gnome.shell disabled-extensions "['background-logo@fedorahosted.org']"
 EOC
 
 echo ""
@@ -1097,8 +1100,8 @@ EOI
 tee -a /usr/share/oh-my-zsh/zshrc > /dev/null << 'EOI'
 
 # set PATH so it includes user's private bin if it exists
-if [ -d "$HOME/bin" ] ; then
-    PATH="$HOME/bin:$PATH"
+if [ -d "$HOME/.bin" ] ; then
+    PATH="$HOME/.bin:$PATH"
 fi
 
 # set PATH so it includes user's private bin if it exists
@@ -1198,11 +1201,13 @@ curl -s https://pyenv.run | bash
 
 tee -a /usr/share/oh-my-zsh/zshrc ${home_selected}/.profile ${home_selected}/.zprofile ${home_selected}/.bashrc > /dev/null << 'EOI'
 
-# Configuration for pyenv
-export PYENV_ROOT="$HOME/.pyenv"
-command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
 
+# Configuration for pyenv
+if [ -d "$HOME/.pyenv" ] ; then
+    export PYENV_ROOT="$HOME/.pyenv"
+    command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+    eval "$(pyenv init -)"
+fi
 EOI
 
 chown -R $user_selected:$user_selected ${home_selected}/.pyenv
@@ -1260,10 +1265,10 @@ echo ""
 ln -s /var/lib/snapd/snap /snap
 
 # Updating cache
+sudo -E -u $user_selected bash <<-EOC
 snap refresh
-
-# Install Snap Store
 snap install snap-store
+EOC
 
 echo ""
 echo "FEDORA-SETUP: Installing and configuring Snap finished."
