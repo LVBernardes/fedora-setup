@@ -20,11 +20,13 @@ source ./scripts/00_shell_tools.sh
 # Run the DNF configuration optimization script
 echo -e "${GREEN}[INFO] - Executing package manager and repos setup...${NO_COLOR}"
 sleep 2
-sudo -E -u $ACTUAL_USER bash /scripts/10_initial_config_setup.sh
+sudo -E -u $ACTUAL_USER bash ./scripts/10_initial_config_setup.sh
+handle_error "Failed to start package manager and repos setup script."
 
 # Run the DNF configuration optimization script
 echo -e "${GREEN}[INFO] - Executing package and applications installation script...${NO_COLOR}"
-sudo -E -u $ACTUAL_USER bash /scripts/20_pkg_apps_installation.sh
+sudo -E -u $ACTUAL_USER bash ./scripts/20_pkg_apps_installation.sh
+handle_error "Failed to start package manager and repos setup script."
 
 # echo -e "${GREEN}[INFO] - Executing package manager and repos setup...${NO_COLOR}"
 # sleep 2
