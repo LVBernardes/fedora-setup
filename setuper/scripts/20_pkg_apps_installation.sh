@@ -4,6 +4,7 @@ source ./00_shell_tools.sh
 source ./01_dnf_and_rpm_tools.sh
 source ./02_os_tools.sh
 source ./03_flatpak_tools.sh
+source ./04_appimage_tools.sh
 
 
 color_echo "blue" "[BLUE] - Starting packages and applications installation."
@@ -56,8 +57,6 @@ BASIC_PACKAGES=(
     solaar # Device manager for a wide range of Logitech devices
     squashfuse # FUSE filesystem to mount squashfs archives
     texlive-scheme-full # Texlive complete package
-    tlp # Optimize laptop battery life
-    tlp-rdw # Radio device wizard for TLP
     tuned # Tuned can optimize your performance according to metrics. tuned-adm profile powersave can help you on laptops, alot
     tuned-gtk # GTK GUI for tuned
     tuned-switcher # Simple utility to manipulate the Tuned service
@@ -86,6 +85,7 @@ FLATPAK_APPS=(
     io.github.nokse22.asciidraw # Draw diagrams, tables, tree view, art and more using only characters.
     com.github.wwmm.easyeffects # Audio effects for PipeWire applications
     com.calibre_ebook.calibre # Ebook management
+    org.gnome.Extensions # GNOME Extensions handles updating extensions, configuring extension preferences and removing or disabling unwanted extensions. 
     com.mattjakeman.ExtensionManager # A utility for browsing and installing GNOME Shell Extensions.
     org.flameshot.Flameshot # Powerful and simple to use screenshot software
     com.github.tchx84.Flatseal # Flatseal is a graphical utility to review and modify permissions from your Flatpak applications.
@@ -99,7 +99,22 @@ FLATPAK_APPS=(
     io.podman_desktop.PodmanDesktop # Podman Desktop is an open source graphical tool enabling you to seamlessly work with containers and Kubernetes from your local environment.
     org.qbittorrent.qBittorrent # A bittorrent Client
     com.spotify.Client
+    org.stellarium.Stellarium # Stellarium renders 3D photo-realistic skies in real time with OpenGL.
     org.texstudio.TeXstudio # A feature-rich editor for LaTeX documents
     org.mozilla.Thunderbird # Mozilla Thunderbird mail/newsgroup client
     org.zotero.Zotero # Zotero is a free, easy-to-use tool to help you collect, organize, cite, and share your research sources.
 )
+
+# Array of configurations to add/update.
+declare -A APPIMAGES=(
+    "insomnia"="Kong/Insomnia"
+    "drawio"="jgraph/drawio-desktop"
+)
+
+install_dnf_packages $BASIC_PACKAGES
+
+install_dnf_packages $BASIC_GUI_PACKAGES
+
+install_flatpak_app $FLATPAK_APPS
+
+install_appimages_from_github $ACTUAL_USER $APPIMAGES

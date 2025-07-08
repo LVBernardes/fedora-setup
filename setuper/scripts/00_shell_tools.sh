@@ -5,12 +5,12 @@ color_echo() {
     local color="$1"
     local text="$2"
     case "$color" in
-        "red")     echo -e "\033[0;31m$text\033[0m" ;;
-        "green")   echo -e "\033[0;32m$text\033[0m" ;;
-        "orange")  echo -e "\033[0;33m$text\033[0m" ;;
-        "yellow")  echo -e "\033[1;33m$text\033[0m" ;;
-        "blue")    echo -e "\033[0;34m$text\033[0m" ;;
-        "purple")  echo -e "\033[0;35m$text\033[0m" ;;
+        "red")     echo -e "\033[0;31m$text\033[0m" && sleep 1 ;;
+        "green")   echo -e "\033[0;32m$text\033[0m" && sleep 1 ;;
+        "orange")  echo -e "\033[0;33m$text\033[0m" && sleep 1 ;;
+        "yellow")  echo -e "\033[1;33m$text\033[0m" && sleep 1 ;;
+        "blue")    echo -e "\033[0;34m$text\033[0m" && sleep 1 ;;
+        "purple")  echo -e "\033[0;35m$text\033[0m" && sleep 1 ;;
         *)         echo "$text" ;;
     esac
 }
